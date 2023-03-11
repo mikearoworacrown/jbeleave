@@ -117,6 +117,10 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="employee-no" id="label-employee-no">Employee ID.<span class="jbe__required jbe__error" id="employeeno-info"></span></label>
+                <input type="text" class="form-control" name="employee-no" id="employee-no" placeholder="Enter Employee Number" value ="" required/>
+            </div>
+            <div class="form-group">
                 <label for="job-title" id="label-job-title">Job Title<span class="jbe__required jbe__error" id="job-info"></span></label>
                 <input type="text" class="form-control" name="job-title" id="job-title" placeholder="Enter Job Title" value ="" required/>
             </div>

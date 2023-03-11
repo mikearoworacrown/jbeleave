@@ -14,6 +14,7 @@
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
     $department_id = $_POST['department-id'];
+    $employee_no = $_POST['employee-no'];
     $job_title = $_POST['job-title'];
     $total_leave = $_POST['total-leave'];
     $line_manager = $_POST['line-manager'];
@@ -55,6 +56,4 @@
         );
         echo json_encode($response);
     }
-
-
 ?>

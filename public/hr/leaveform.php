@@ -12,6 +12,8 @@
     $employeeRecord = new Employee();
     $employeeDetails = $employeeRecord->getEmployee($_SESSION['email-phone']);
 
+    $leaveYears = $employeeRecord->getLeaveYears($_SESSION['employee-id']);
+
     $today = date("d-m-Y");
 
     include(SHARED_PATH . "/header.php");
@@ -44,15 +46,17 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-employeeid">Employee ID: </label>
-                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeDetails[0]['employee_id']; ?>" disabled>
+                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeDetails[0]['staff_id']; ?>" disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-year">Leave Year: <span class="jbe__required jbe__error" id="daysleft"></span><span class="jbe__required">day(s) left</span></label>
                         <input type="hidden" id="employee_id" value="<?php echo $_SESSION['employee-id'];?>">
                         <select class="form-select selectleaveyear" name="leave-year" id="leave-year" required>
                             <option value="" disabled selected>Select Leave Year</option>
-                            <option value="2022">2022</option>
-                            <option value="2023">2023</option>
+                            <?php
+                                for($i = 0; $i < count($leaveYears); $i++){?>
+                                    <option value='<?php echo $leaveYears[$i]['year'];?>'><?php echo $leaveYears[$i]['year']; ?></option>
+                          <?php } ?>
                         </select>
                     </div>
                     <script>
@@ -72,6 +76,7 @@
                                     if(xhr.status === 200){
                                         let data = xhr.response;
                                         let dataParsed = JSON.parse(data);
+                                        console.log(dataParsed);
                                         let daysleft = document.querySelector("#daysleft");
                                         daysleft.innerHTML = dataParsed[0]['daysleft'];
                                     }

@@ -16,6 +16,7 @@ if(submitBtnRegister){
         let firstname = document.querySelector("#firstname");
         let lastname = document.querySelector("#lastname");
         let department = document.querySelector("#department");
+        let employeeNo = document.querySelector("#employee-no");
         let jobTitle = document.querySelector("#job-title");
         let totalLeave = document.querySelector("#total-leave");
         let lineManager = document.querySelector("#line-manager");
@@ -25,7 +26,7 @@ if(submitBtnRegister){
         let passwordMsg = document.querySelector("#jbe__password-msg");
 
         if(email_phone.value !== "" && password.value !== "" && firstname.value !== ""
-        && lastname.value !== "" && department.value !== "" && jobTitle.value !== "" && totalLeave !== "" && lineManager.value !== ""
+        && lastname.value !== "" && department.value !== "" && employeeNo !== "" && jobTitle.value !== "" && totalLeave !== "" && lineManager.value !== ""
         && lineManagerEmail.value != "" && region.value !== "" && branch.value !== ""){
 
             let xhr = new XMLHttpRequest();
@@ -44,6 +45,7 @@ if(submitBtnRegister){
                             firstname.value = "";
                             lastname.value = "";
                             department.value = "";
+                            employeeNo.value = "";
                             jobTitle.value = "";
                             totalLeave.value = "";
                             lineManager.value = "";

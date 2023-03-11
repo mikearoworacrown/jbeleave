@@ -164,15 +164,16 @@ class Employee {
                 $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
             }
 
-            $query = 'INSERT INTO jbe_employees (firstname, lastname, password, email_phone, department, job_description, branch, region, 
-             linemanagername, linemanageremail, totalleave) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-            $paramType = 'sssssssssss';
+            $query = 'INSERT INTO jbe_employees (firstname, lastname, password, email_phone, department, staff_id, job_description, branch, region, 
+             linemanagername, linemanageremail, totalleave) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            $paramType = 'ssssssssssss';
             $paramValue = array(
                 $_POST['firstname'],
                 $_POST['lastname'],
                 $hashedPassword,
                 $_POST['email-phone'],
                 $_POST['department'],
+                $_POST['employee-no'],
                 $_POST['job-title'],
                 $_POST['branch'],
                 $_POST['region'],
@@ -183,9 +184,9 @@ class Employee {
             $employeeId = $this->db_handle->insert($query, $paramType, $paramValue);
 
             if (!empty($employeeId)) {
-                $year = date("Y") - 1;
-                $daystaken = $_POST['total-leave'];
-                $daysleft = 0;
+                $year = date("Y");
+                $daystaken = 0;
+                $daysleft = $_POST['total-leave'];
                 
                 $query = 'INSERT INTO leave_years (employee_id, year, totalleave, daystaken, daysleft)
                 VALUES (?, ?, ?, ?, ?)';
@@ -198,26 +199,7 @@ class Employee {
                     $daystaken,
                     $daysleft
                 );
-                $leaveId0 = $this->db_handle->insert($query, $paramType, $paramValue);
-
-                if(!empty($leaveId0)){
-                    $year = date("Y");
-                    $daystaken = 0;
-                    $daysleft = $_POST['total-leave'];
-                    
-                    $query = 'INSERT INTO leave_years (employee_id, year, totalleave, daystaken, daysleft)
-                    VALUES (?, ?, ?, ?, ?)';
-
-                    $paramType = 'sssss';
-                    $paramValue = array(
-                        $employeeId,
-                        $year,
-                        $_POST['total-leave'],
-                        $daystaken,
-                        $daysleft
-                    );
-                    $leaveId = $this->db_handle->insert($query, $paramType, $paramValue);
-                }
+                $leaveId = $this->db_handle->insert($query, $paramType, $paramValue);
                 
                 if(!empty($leaveId)){
                     $response = array(
@@ -241,13 +223,14 @@ class Employee {
                 );
             }
         }else{
-            $query = 'UPDATE jbe_employees SET firstname = ?, lastname = ?, email_phone = ?, department = ?, employeetype = ?, job_description = ?, branch = ?, 
+            $query = 'UPDATE jbe_employees SET firstname = ?, lastname = ?, email_phone = ?, staff_id = ?, department = ?, employeetype = ?, job_description = ?, branch = ?, 
             linemanagername = ?, linemanageremail = ?, totalleave = ?, status = ?  WHERE employee_id = ?';
-            $paramType = 'sssssssssssi';
+            $paramType = 'ssssssssssssi';
             $paramValue = array(
                 $_POST['firstname'],
                 $_POST['lastname'],
                 $_POST['email-phone'],
+                $_POST['employee-no'],
                 $_POST['department'],
                 $_POST['employee-type'],
                 $_POST['job-description'],

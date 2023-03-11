@@ -41,8 +41,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="employee-id">Employee ID: </label>
-                        <input type="text" class="form-control" name="employee-id" id="employee-id" value="<?php echo $employeeRecord[0]['employee_id']; ?>" disabled>
+                        <label for="employee-no">Employee ID: </label>
+                        <input type="text" class="form-control" name="employee-no" id="employee-no" value="<?php echo $employeeRecord[0]['staff_id']; ?>">
                         <input type="hidden" name="employee_id" value="<?php echo $employeeRecord[0]['employee_id']; ?>">
                     </div>
                     <div class="form-group">

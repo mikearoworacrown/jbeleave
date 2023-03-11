@@ -23,16 +23,11 @@
 
     $_SESSION['department'] = $employeeDetails[0]['department'];
     $employeetype = "user";
-    $status = "Pending";
-
+    $supervisor_status = "Pending";
 
     $teamApplications =  $employeeRecord->getAllTeamApplication($_SESSION['department'], $employeetype, $supervisor_status);
 
     $leaveYears = $employeeRecord->getLeaveYears($employee_id);
-
-    $supervisor_status = "Approved";
-    $hr_status  = "Pending";
-    $approvedLeave = $employeeRecord->getApprovedLeaveApplication($supervisor_status, $hr_status);
 
     $approved = "Processed";
     $pending = "Pending";
@@ -55,7 +50,7 @@
         ?>
         <div class="jbe__homepage-welcome">
             <h4>Welcome <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['firstname'] . " " . $employeeDetails[0]['lastname'] ?></span></h4>
-            <a href="<?php echo url_for('/hr/leaveform.php')?>" class="h6 button">Apply For Leave</a>
+            <a href="<?php echo url_for('/supervisor/leaveform.php')?>" class="h6 button">Apply For Leave</a>
         </div>
         <h5 class="jbe__general-header-h5">Leave information</h5>
         <div class="jbe__homepage-leave-info">
