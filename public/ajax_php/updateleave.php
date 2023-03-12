@@ -20,11 +20,12 @@
     $_SESSION['team-leave-noofdays'] = $_SESSION['noofdays'];
 
     // echo $_SESSION['team-leave-replaceby'] . " " . $_SESSION['team-leave-status'] . " " . $_SESSION['team-leave-startdate']
-    // . " " . $_SESSION['team-leave-resumption'] . " " . $_SESSION['team-leave-enddate'] . " " . $_SESSION['team-leave-noofdays'];
+    // . " " . $_SESSION['team-leave-resumption'] . " " . $_SESSION['team-leave-enddate'] . " " . $_SESSION['team-leave-noofdays'] . " " .
+    // $_SESSION["team-id"] . " " . $_SESSION["team-leave-id"];
 
-    // var_dump($_SESSION);
-    $updateLeave = new Employee();
-    $response = $updateLeave->updateTeamLeave($_SESSION["team-id"], $_SESSION["team-leave-id"]);
+    // // var_dump($_SESSION);
+    $employeeRecord = new Employee();
+    $response = $employeeRecord->updateTeamLeave($_SESSION["team-id"], $_SESSION["team-leave-id"]);
 
     echo json_encode($response);
     

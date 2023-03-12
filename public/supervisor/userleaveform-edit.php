@@ -13,12 +13,12 @@
 
     $employee_id = $_GET['employee_id'];
     $employee_leave_id = $_GET['employee_leave_id'];
-    $status = 'Pending';
+    $supervisor_status = 'Pending';
     $_SESSION['team-id'] = $employee_id;
     $_SESSION['team-leave-id'] = $employee_leave_id;
     $today = date('d/m/Y');
 
-    $employeeLeaveDetail = $employee->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $status);
+    $employeeLeaveDetail = $employee->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $supervisor_status);
 
     if(empty($employeeLeaveDetail)){
         header('Location: ../');
@@ -55,7 +55,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-employeeid">Employee ID: </label>
-                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeLeaveDetail[0]['employee_id']; ?>" disabled>
+                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeLeaveDetail[0]['staff_id']; ?>" disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-year">Leave Year: <span class="jbe__required jbe__error daysleft" id="daysleft"><?php echo $employeeLeaveDetail[0]['daysleft']; ?></span><span class="jbe__required"> day(s) left</span></label>

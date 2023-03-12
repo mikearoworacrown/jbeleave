@@ -62,7 +62,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-employeeid">Employee ID: </label>
-                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeLeaveDetail[0]['employee_id']; ?>" disabled>
+                        <input type="text" class="form-control" name="leave-employeeid" id="leave-employeeid" value="<?php echo $employeeLeaveDetail[0]['staff_id']; ?>" disabled>
                         <input type="hidden" name="process-employeeid" value="<?php echo $employeeLeaveDetail[0]['employee_id']; ?>">
                         <input type="hidden" name="process-leave-employeeid" value="<?php echo $employeeLeaveDetail[0]['employee_leave_id']; ?>">
                     </div>
@@ -143,9 +143,23 @@
                     </div>
                     <div class="form-group">
                         <label for="leave-status">Status:</label>
-                        <select class="form-select" name="leave-status" id="leave-status" style="color:green;" disabled>
-                            <option value="Approved" style="color:green" selected>Approved</option>
+                        <select class="form-select" name="leave-status" id="leave-status" style="color:#ffc107;" required>
+                            <option value="Pending" style="color:#ffc107;" selected>Pending</option>
+                            <option value="Approved" style="color:green">Approved</option>
+                            <option value="Declined" style="color:red">Declined</option>
                         </select>
+                        <script>
+                            let select = document.querySelector('#leave-status');
+                            select.onchange = () => {
+                                if(select.value == "Pending") {
+                                    select.style.color = "#ffc107";
+                                }else if(select.value == "Approved"){
+                                    select.style.color = "#198754";
+                                }else if(select.value == "Declined"){
+                                    select.style.color = "#D0312D";
+                                }
+                            }
+                        </script>
                     </div>
                     <div class="form-group">
                         <label for="leave-noofdays">Number of days:</span></label>

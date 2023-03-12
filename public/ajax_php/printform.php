@@ -15,7 +15,7 @@
     $printform = $employee->printedGrantedLeave($data['id'], $data['leave_id']);
     $strtotime = strtotime($printform[0]['created_at']);
 
-    $_SESSION['granted-id'] = $printform[0]['employee_id'];
+    $_SESSION['granted-id'] = $printform[0]['staff_id'];
     $_SESSION['granted-leave-id'] = $printform[0]['employee_leave_id'];
     $_SESSION['granted-firstname'] = $printform[0]['firstname'];
     $_SESSION['granted-lastname'] = $printform[0]['lastname'];

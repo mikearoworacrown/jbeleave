@@ -3,8 +3,9 @@
     require_once(PROJECT_PATH . '/class/Employee.php');
     
 
-    $processLeave = new Employee();
-    $response = $processLeave->updateEmployeeLeave($_POST["process-employeeid"], $_POST["process-leave-employeeid"]);
+    $employeeRecord = new Employee();
+
+    $response = $employeeRecord->updateEmployeeLeave($_POST["process-employeeid"], $_POST["process-leave-employeeid"], $_POST['leave-status']);
 
     echo json_encode($response);
     

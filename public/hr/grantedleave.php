@@ -13,15 +13,15 @@
     include(SHARED_PATH . "/header.php");
 
     $employee = new Employee();
-    $status = "Approved";
-    $hr_attend  = "yes";
+    $supervisor_status = "Approved";
+    $hr_status  = "Approved";
 
     if(isset($_SESSION['searchvalue'])) {
-        $grantedLeave = $employee->getApprovedLeaveApplicationLike($status, $hr_attend, $_SESSION['searchvalue']);
+        $grantedLeave = $employee->getApprovedLeaveApplicationLike($status, $hr_status, $_SESSION['searchvalue']);
         $_SESSION['savedsearchvalue'] = $_SESSION['searchvalue'];
         unset($_SESSION['searchvalue']);
     }else{
-        $grantedLeave = $employee->getApprovedLeaveApplication($status, $hr_attend);
+        $grantedLeave = $employee->getApprovedLeaveApplication($supervisor_status, $hr_status);
     }
 
 ?>
@@ -125,7 +125,7 @@
                             <td>". $grantedLeave[$i]['replacedby'] ."</td>
                             <td>". $grantedLeave[$i]['daystaken'] ."</td>
                             <td>". $grantedLeave[$i]['daysleft'] ."</td>
-                            <td><nobr><span id='status' class='approved'>". $grantedLeave[$i]['status'] ."</span>
+                            <td><nobr><span id='status' class='approved'>". $grantedLeave[$i]['hr_status'] ."</span>
                             <i class='fas fa-check h5' style='color:#198754;'></i></nobr>
                             </td>
                             <td>
