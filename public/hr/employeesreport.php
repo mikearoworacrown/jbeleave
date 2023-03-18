@@ -2,61 +2,36 @@
     require_once("C:/xampp/htdocs/jbeleave/private/initialize.php");
     require_once(PROJECT_PATH . "/class/Employee.php");
 
-    $page_title = "Staff Record";
+    $page_title = "Employee Report";
+
+    $_SESSION['savedreportsearchvalue'] = "";
 
     if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }
-    $_SESSION['savedemployeesearchvalue'] = "";
+    $_SESSION['savedemployeereportsearchvalue'] = "";
 
     include(SHARED_PATH . "/header.php");
 
     $employee = new Employee();
 
-    $totalNumberOfEmployee = $employee->getTotalNumberOfEmployee();
-    $num_per_page = 10;
-    $page_total = ceil($totalNumberOfEmployee / $num_per_page);
+    $dbYears = $employee->getYears();
+    $year = date('Y');
+    $today = date("d-m-Y");
 
-    if(isset($_SESSION['employeesearchvalue'])){
-        $employeeRecord = $employee->getEmployeeByName($_SESSION['employeesearchvalue']);
-        $_SESSION['savedemployeesearchvalue'] = $_SESSION['employeesearchvalue'];
-        unset($_SESSION['employeesearchvalue']);
+
+    if(isset($_SESSION['employeereportsearchvalue'])) {
+        $employeeRecord = $employee->getAllEmployeePlusLeaveYearByName($year, $_SESSION['employeereportsearchvalue']);
+        $_SESSION['savedemployeereportsearchvalue'] = $_SESSION['employeereportsearchvalue'];
+        unset($_SESSION['employeereportsearchvalue']);
     }else{
-        if(isset($_SESSION['range1']) && isset($_SESSION['range2'])){
-            $range1 = $_SESSION['range1'];
-            if($totalNumberOfEmployee < $_SESSION['range2']){
-                $range2 = $totalNumberOfEmployee;
-            }else{
-                $range2 = $_SESSION['range2'];
-            }
-        }else{
-            $range1 = 0;
-            if($totalNumberOfEmployee < 15){
-                $range2 = $totalNumberOfEmployee;
-            }else{
-                $range2 = 15;
-            }
-        }
-
-        if(isset($_SESSION['page'])){
-            $pageActive = $_SESSION['page'];
-        }else{
-            $pageActive = '1';
-        }
-        
-
-        $allEmployee = $employee->getAllEmployee();
-        $today = date("d-m-Y");
+        $employeeRecord = $employee->getAllEmployeePlusLeaveYear($year);
     }
 
 ?>
-<input type="hidden" class="inputpage" value="<?php echo $pageActive; ?>">
 
 <style>
-    .jbe__employees-record{
-        margin-top: 8rem;
-    }
     .searchform {
         display: flex;
         flex-direction: row;
@@ -78,7 +53,7 @@
     }
 </style>
 
-<section class="jbe__container-fluid jbe__employees-record">
+<section class="jbe__container-fluid jbe__employees-report">
     <div class="jbe__container">
         <?php if(isset($_SESSION['update-message'])){
             echo "
@@ -93,14 +68,22 @@
     <div class="jbe__container">
         <div class="jbe__homepage-welcome">
             <div>
-                <h5 class="jbe__general-header-h5">Employees Record - Registered Employee</h5>
+                <h5 class="jbe__general-header-h5">Employees Report</h5>
                 <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
                 <form action="" method="post" class="searchform">
-                    <input type="text" class="form-control searchvalue" name="searchvalue" value="<?php if(isset($_SESSION['savedemployeesearchvalue'])){ echo $_SESSION['savedemployeesearchvalue'];}?>" placeholder="Search Employee">
+                    <input type="text" class="form-control searchvalue" name="searchvalue" value="<?php if(isset($_SESSION['savedemployeereportsearchvalue'])){ echo $_SESSION['savedemployeereportsearchvalue'];}?>" placeholder="Search Employee">
                     <button type="button" class="searchformbtn"><i class="fas fa-search"></i></button>
                 </form>
             </div>
-            <a href="<?php echo url_for('/hr/register.php')?>" class="h6 button">Register New Employee</a>
+            <div form action="" method="post" class="yearreport">
+                <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
+                <select class="indexselect leaveyearindex">
+                    <?php
+                        for($i = 0; $i < count($dbYears); $i++){?>
+                            <option value='<?php echo $dbYears[$i]['year'];?>' <?php if($year == $dbYears[$i]['year']){ echo 'selected';} ?>><?php echo $dbYears[$i]['year']; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
     </div>
 </section>
@@ -131,14 +114,13 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col" width="4%">S/N</th>
+                    <th scope="col">Employee ID</th>
                     <th scope="col">Employee Name</th>
                     <th scope="col">Email Address/Phone Number</th>
-                    <th scope="col">Department</th>
-                    <th scope="col">Job Description</th>
                     <th scope="col">Total Leave</th>
-                    <th scope="col">Line Manager</th>
-                    <th scope="col">Status</th>
-                    <th scope="col" width="5%">Action</th>
+                    <th scope="col">Days Taken</th>
+                    <th scope="col">Days Left</th>
+                    <th scope="col" width="5%">View</th>
                 </tr>
             </thead>
             <tbody>
@@ -146,55 +128,17 @@
                     if(!empty($employeeRecord)){
                         for($i = 0; $i < count($employeeRecord); $i++){
                             echo "<tr><th scope='row'>" . $i+1 . "</th>
+                            <td>" . $employeeRecord[$i]['staff_id']  . "</td>
                             <td>" . $employeeRecord[$i]['firstname'] . ' ' . $employeeRecord[$i]['lastname']  . "</td>
                             <td>" . $employeeRecord[$i]['email_phone']  . "</td>
-                            <td>" . $employeeRecord[$i]['department'] ."</td>
-                            <td>" . $employeeRecord[$i]['job_description'] . "</td>
                             <td>" . $employeeRecord[$i]['totalleave'] . "</td>
-                            <td>" . $employeeRecord[$i]['linemanagername'] . "</td>";
-                            if($employeeRecord[$i]['status'] === 'active'){
-                                echo "<td><span style='background-color:#198754; padding: 0.3rem; border-radius: 0.4rem;'>". $employeeRecord[$i]['status'] ."<span></td>";
-                            }else{
-                                echo "<td><span style='background-color:#D0312D; padding: 0.3rem; border-radius: 0.4rem;'>". $employeeRecord[$i]['status'] ."<span></td>";
-                            }
-                            echo "<td>
-                                <a href='employee-edit.php?employee_id=". $employeeRecord[$i]['employee_id'] ."' class='h5'><i class='fas fa-edit'></i></a>";
-                          echo "</td></tr>";
+                            <td>" . $employeeRecord[$i]['daystaken'] . "</td>
+                            <td>" . $employeeRecord[$i]['daysleft'] . "</td>
+                            <td><a href='employee-report.php?employee_id=". $employeeRecord[$i]['employee_id'] ."&employee_no=". $employeeRecord[$i]['staff_id']. "&year=" .$year. "' class='h5'><i class='fas fa-eye'></i></a></td>";
                         }
-                    } else if(empty($employeeRecord) && !isset($range1) && !isset($range2)){
-                        //DISPLAY NOTHING
-                    }
-                    else{
-                        for($i = $range1; $i < $range2; $i++){
-                            echo "<tr><th scope='row'>" . $i+1 . "</th>
-                            <td>" . $allEmployee[$i]['firstname'] . ' ' . $allEmployee[$i]['lastname']  . "</td>
-                            <td>" . $allEmployee[$i]['email_phone']  . "</td>
-                            <td>" . $allEmployee[$i]['department'] ."</td>
-                            <td>" . $allEmployee[$i]['job_description'] . "</td>
-                            <td>" . $allEmployee[$i]['totalleave'] . "</td>
-                            <td>" . $allEmployee[$i]['linemanagername'] . "</td>";
-                            if($allEmployee[$i]['status'] === 'active'){
-                                echo "<td><span style='background-color:#198754; padding: 0.3rem; border-radius: 0.4rem;'>". $allEmployee[$i]['status'] ."<span></td>";
-                            }else{
-                                echo "<td><span style='background-color:#D0312D; padding: 0.3rem; border-radius: 0.4rem;'>". $allEmployee[$i]['status'] ."<span></td>";
-                            }
-                            echo "<td>
-                                <a href='employee-edit.php?employee_id=". $allEmployee[$i]['employee_id'] ."' class='h5'><i class='fas fa-edit'></i></a>";
-                          echo "</td></tr>";
-                        }
-                    }
-                ?>
+                    }?>
             </tbody>
         </table>
-        <div class="pages" style="position: relative;">
-        <?php
-        if($totalNumberOfEmployee > 15){
-            for($i = 1; $i <= $page_total; $i++) {
-                echo "<a class='pagbtn page".$i."'>$i</a>";
-            }
-        }
-        ?>
-        </div>
     </div>
 </section>
 
@@ -221,14 +165,14 @@
         searchFormBtn.onclick = () => {
             if(searchValue.value != ""){
                 let xhr = new XMLHttpRequest();
-                xhr.open("POST", "../ajax_php/searchemployee.php", true)
+                xhr.open("POST", "../ajax_php/searchemployeereport.php", true)
                 xhr.onload = () => {
                     if(xhr.readyState === XMLHttpRequest.DONE){
                         if(xhr.status === 200){
                             let data = xhr.response;
                             let dataParsed = JSON.parse(data);
                             if(dataParsed !== ""){
-                                location.href = "employees.php";
+                                location.href = "employeesreport.php";
                             }
                         }
                     }

@@ -4,11 +4,11 @@
 
     $employee = new Employee();
 
-    $status = "Approved";
-    $hr_attend  = "yes";
+    $supervisor_status = "Approved";
+    $hr_status  = "Approved";
     $_SESSION['searchvalue'] = $_POST['searchvalue'];
 
-    $grantedLeave = $employee->getApprovedLeaveApplicationLike($status, $hr_attend, $_SESSION['searchvalue']);
+    $grantedLeave = $employee->getApprovedLeaveApplicationLike($supervisor_status, $hr_status, $_SESSION['searchvalue']);
 
     echo json_encode($grantedLeave);
 

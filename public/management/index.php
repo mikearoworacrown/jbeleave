@@ -4,11 +4,11 @@
 
     $page_title = "Leave Form";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'management'){
         header('Location: ../');
         exit();
     }
-
+   
     unset($_SESSION['endDate']);
     unset($_SESSION['noofdays']);
     
@@ -21,20 +21,21 @@
     $employeeYearDetails = $employeeRecord->getEmployeeYearRecord($employee_id, $year);
     $getleaveapplication = $employeeRecord->getleaveapplication($employee_id, $year);
 
-    $leaveYears = $employeeRecord->getLeaveYears($employee_id);
+    $line_manager = $_SESSION['firstname'] . " " . $_SESSION['lastname'];
+    $supervisor_status = "Pending";
 
-    $supervisor_status = "Approved";
-    $hr_status  = "Pending";
-    $approvedLeave = $employeeRecord->getApprovedLeaveApplication($supervisor_status, $hr_status);
+    $teamApplications =  $employeeRecord->getAllSubordinateApplication($line_manager, $supervisor_status);
+
+    $leaveYears = $employeeRecord->getLeaveYears($employee_id);
 
     $approved = "Processed";
     $pending = "Pending";
     $declined = "Declined";
 
-
     include(SHARED_PATH . "/header.php");
 ?>
 
+    
 <section class="jbe__container-fluid jbe__homepage">
     <div class="jbe__container">
         <?php if(isset($_SESSION['message'])){
@@ -48,7 +49,7 @@
         ?>
         <div class="jbe__homepage-welcome">
             <h4>Welcome <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['firstname'] . " " . $employeeDetails[0]['lastname'] ?></span></h4>
-            <a href="<?php echo url_for('/hr/leaveform.php')?>" class="h6 button">Apply For Leave</a>
+            <a href="<?php echo url_for('/supervisor/leaveform.php')?>" class="h6 button">Apply For Leave</a>
         </div>
         <h5 class="jbe__general-header-h5">Leave information</h5>
         <div class="jbe__homepage-leave-info">
@@ -268,17 +269,20 @@
     </div>
 </section>
 
-<section class="jbe__container-fluid jbe__employees-record">
-    <div class="jbe__container">
-        <div class="jbe__homepage-welcome">
-            <div>
-                <h5 class="jbe__general-header-h5">Employees Leave Requests</h5>
-                <h5>Branch: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['branch'];  ?></span></h5>
-            </div>
-            <a href="<?php echo url_for('/hr/report.php')?>" class="h6 button">Employees Leave Reports</a>
+
+<section class="jbe__container-fluid mt-3">
+    <div class="jbe__container" style="position: relative">
+        <div>
+            <h5 class="jbe__general-header-h5">Subordinate Leave Request</h5>
+            <h5>Branch: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['branch'];  ?></span></h5>
+        </div>
+        
+        <div class="jbe__homepage-welcome" style="position: absolute; top: 1rem; right: 1rem;">
+            <a href="<?php echo url_for('management/teamrecord.php')?>" class="h6 button">View Subordinate Record</a>
         </div>
     </div>
 </section>
+
 <section class="jbe__container-fluid jbe__table">
     <div class="jbe__container">
         <table class="table">
@@ -286,36 +290,33 @@
                 <tr>
                     <th scope="col" width="4%">S/N</th>
                     <th scope="col">Employee Name</th>
-                    <th scope="col">Start Date</th>
-                    <th scope="col">End Date</th>
-                    <th scope="col" width="11%">Number of days</th>
-                    <th scope="col">Resumption Date</th>
-                    <th scope="col">Replaced By</th>
-                    <th scope="col">Suppervisor Status</th>
-                    <th scope="col">HR Status</th>
-                    <th scope="col">Action</th>
+                    <th scope="col" width="9%">Total Leave</th>
+                    <th scope="col" width="8%">Days Taken</th>
+                    <th scope="col" width="8%">Days Left</th>
+                    <th scope="col" width="15%">New Leave(No of days)</th>
+                    <th scope="col">Replaced by</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" width="7%">Action</th>
                 </tr>
             </thead>
             <tbody>
             <?php
-                if(!empty($approvedLeave)){
-                    for($i = 0; $i < count($approvedLeave); $i++){
+                if(!empty($teamApplications)){
+                    for($i = 0; $i < count($teamApplications); $i++){
                         echo "
                         <tr>
-                            <th scope='row' id='rownumber'>". $i+1 . "</th>
-                            <td>". $approvedLeave[$i]['firstname'] . " " . $approvedLeave[$i]['lastname'] . "</td>
-                            <td>". $approvedLeave[$i]['start_date'] ."</td>
-                            <td>". $approvedLeave[$i]['end_date'] ."</td>
-                            <td>". $approvedLeave[$i]['noofdays'] ."</td>
-                            <td>". $approvedLeave[$i]['resumption_date'] ."</td>
-                            <td>". $approvedLeave[$i]['replacedby'] ."</td>
-                            <td><span id='status' class='approved'>". $approvedLeave[$i]['supervisor_status'] ."</span></td>
-                            <td><span id='status' class='pending'>". $approvedLeave[$i]['hr_status'] ."</span></td>
-                            <td>
-                                <a class='h5' href='employeeleaveform-edit.php?employee_id=".$approvedLeave[$i]['employee_id']."&employee_leave_id=".$approvedLeave[$i]['employee_leave_id']."'><i class='fas fa-edit'></i></a>
-                            </td>
-                        </tr>";
-                    } 
+                            <th scope='row' id='rownumber'>". $i+1 ."</th>
+                            <td>". $teamApplications[$i]['firstname'] . " " . $teamApplications[$i]['lastname'] . "</td>
+                            <td>". $teamApplications[$i]['totalleave'] ."</td>
+                            <td>". $teamApplications[$i]['daystaken'] ."</td>
+                            <td>". $teamApplications[$i]['daysleft'] ."</td>
+                            <td>". $teamApplications[$i]['noofdays'] ."</td>
+                            <td>". $teamApplications[$i]['replacedby'] ."</td>
+                            <td><span id='status' class='pending'>". $teamApplications[$i]['supervisor_status'] ."<span></td>
+                            <td><a href='userleaveform-edit.php?employee_id=".$teamApplications[$i]['employee_id']."&employee_leave_id=".$teamApplications[$i]['employee_leave_id']."' class='h5'><i class='fas fa-edit'></i></a></td>";
+                          
+                        "</tr>";
+                    }
                 }
             ?>
             </tbody>

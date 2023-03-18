@@ -32,6 +32,9 @@ if(submitBtnLogin){
                         else if (data == "hr"){
                             console.log(data);
                             location.href = "hr/";
+                        } else if (data == "management"){
+                            console.log(data);
+                            location.href = "management/";
                         }
                         else{
                             errorMsgLogin.textContent = data;

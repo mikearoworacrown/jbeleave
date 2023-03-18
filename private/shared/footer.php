@@ -6,6 +6,7 @@
 <script src="<?php echo url_for('js/register.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/leave.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/updateleave.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('js/updatesubleave.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/processleave.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/updateemployee.js?v=') . time();?>"></script>
 </body>

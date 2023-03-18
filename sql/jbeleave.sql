@@ -52,6 +52,7 @@ CREATE TABLE `jbe_employees_leave` (
   `noofdays` int(10) NOT NULL,
   `resumption_date` varchar(100) NOT NULL,
   `year` varchar(20) NOT NULL,
+  `month` varchar(20) NOT NULL,
   `replacedby` varchar(255) NOT NULL,
   `leavetype` varchar(50) NOT NULL,
   `supervisor_status` varchar(50) DEFAULT 'Pending',

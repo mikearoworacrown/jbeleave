@@ -17,7 +17,7 @@
     $hr_status  = "Approved";
 
     if(isset($_SESSION['searchvalue'])) {
-        $grantedLeave = $employee->getApprovedLeaveApplicationLike($status, $hr_status, $_SESSION['searchvalue']);
+        $grantedLeave = $employee->getApprovedLeaveApplicationLike($supervisor_status, $hr_status, $_SESSION['searchvalue']);
         $_SESSION['savedsearchvalue'] = $_SESSION['searchvalue'];
         unset($_SESSION['searchvalue']);
     }else{
@@ -25,6 +25,7 @@
     }
 
 ?>
+
 <style>
 .searchform {
     display: flex;
@@ -50,6 +51,13 @@
 <section class="jbe__container-fluid jbe__employees-record" style="margin-top: 8.5rem">
     <div class="jbe__container">
         <div class="jbe__homepage-welcome">
+            <a href="<?php echo url_for('/hr/employeesreport.php')?>" class="h6 button">Employee Report</a>
+        </div>
+        <div class="jbe__homepage-welcome">
+            <a href="<?php echo url_for('/hr/monthlyreport.php')?>" class="h6 button">Monthly Report (General)</a>
+            <a href="<?php echo url_for('/hr/yearlyreport.php')?>" class="h6 button">Yearly Report (General)</a>
+        </div>
+        <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Employees Granted Leave Requests</h5>
                 <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
@@ -58,7 +66,6 @@
                 <input type="text" class="form-control searchvalue" name="searchvalue" placeholder="Search Employee" value="<?php if(isset($_SESSION['savedsearchvalue'])){ echo $_SESSION['savedsearchvalue'];}?>">
                 <button type="button" class="searchformbtn"><i class="fas fa-search"></i></button>
             </form>
-
         </div>
     </div>
 </section>
@@ -72,6 +79,14 @@
         }
     }
 
+    let searchValue = document.querySelector(".searchvalue");
+    searchValue.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            // event.preventDefault();
+            document.querySelector('.searchformbtn').click();
+        }
+    });
+
     if(searchFormBtn) {
         searchFormBtn.onclick = () => {
             let searchValue = document.querySelector(".searchvalue");
@@ -82,7 +97,7 @@
                 xhr.onload = () => {
                     if(xhr.readyState === XMLHttpRequest.DONE){
                         if(xhr.status === 200){
-                            location.href = "grantedleave.php";
+                            location.href = "report.php";
                         }
                     }
                 }

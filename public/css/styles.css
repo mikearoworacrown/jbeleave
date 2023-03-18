@@ -178,7 +178,7 @@ a{
 }
 .jbe__homepage-welcome {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
 }
@@ -378,6 +378,21 @@ th, td:nth-last-child(2) {
     margin-right: auto;
 }
 
+.jbe__updateSubLeave-submit{
+    display: block;
+    width: 60%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .jbe__processLeave-submit {
     display: block;
     width: 60%;
@@ -493,6 +508,15 @@ th, td:nth-last-child(2) {
       transform: rotate(360deg);
     }
   } */
+
+
+    .jbe__employees-record{
+        margin-top: 3rem;
+    }
+
+    .jbe__employees-report {
+        margin-top: 8rem;
+    }
 /***********************************MEDIA QUERY************************************/
 @media (min-width: 576px) {
     .jbe__login-form{
@@ -512,6 +536,7 @@ th, td:nth-last-child(2) {
     }
     .jbe__homepage-welcome {
         display: flex;
+        flex-direction: row;
     }
 }
 

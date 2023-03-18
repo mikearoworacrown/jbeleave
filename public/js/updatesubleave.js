@@ -1,14 +1,14 @@
-const formUpdateLeaveRequest = document.querySelector(".leave-request-form");
-const submitUpdateBtnLeave = document.querySelector(".jbe__updateLeave-submit");
+const formUpdateSubLeaveRequest = document.querySelector(".sub-leave-request-form");
+const submitUpdateSubBtnLeave = document.querySelector(".jbe__updateSubLeave-submit");
 
-if(formUpdateLeaveRequest){
-    formUpdateLeaveRequest.onsubmit = (e) => {
+if(formUpdateSubLeaveRequest){
+    formUpdateSubLeaveRequest.onsubmit = (e) => {
         e.preventDefault();
     }
 }
 
-if(submitUpdateBtnLeave) {
-    submitUpdateBtnLeave.onclick = () => {
+if(submitUpdateSubBtnLeave) {
+    submitUpdateSubBtnLeave.onclick = () => {
         let loading = document.querySelector(".loader");
         loading.style.display = "block";
         let xhr = new XMLHttpRequest();
@@ -20,13 +20,13 @@ if(submitUpdateBtnLeave) {
                     let dataParsed = JSON.parse(data);
                     console.log(dataParsed);
                     if (dataParsed['status'] == "success" || dataParsed['status'] == "error")  {
-                        location.href = "../supervisor"
+                        location.href = "../management"
                     }
                 }
             }
         }
         //we have to send the form data through AJAX to php
-        let formData = new FormData(formUpdateLeaveRequest); //creating new formData object
+        let formData = new FormData(formUpdateSubLeaveRequest); //creating new formData object
         xhr.send(formData); //sending the form data to php
     }
 }

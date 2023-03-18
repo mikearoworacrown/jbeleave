@@ -51,6 +51,7 @@
                             <option value="user" <?php if($employeeRecord[0]['employeetype'] == 'user'){ ?> selected="<?php echo "selected";}?>">user</option>
                             <option value="supervisor" <?php if($employeeRecord[0]['employeetype'] == 'supervisor'){ ?> selected="<?php echo "selected";}?>">supervisor</option>
                             <option value="hr" <?php if($employeeRecord[0]['employeetype'] == 'hr'){ ?> selected="<?php echo "selected";}?>">hr</option>
+                            <option value="management" <?php if($employeeRecord[0]['employeetype'] == 'management'){ ?> selected="<?php echo "selected";}?>">management</option>
                         </select>
                     </div>
                     <div class="form-group">
