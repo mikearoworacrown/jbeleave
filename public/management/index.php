@@ -49,7 +49,7 @@
         ?>
         <div class="jbe__homepage-welcome">
             <h4>Welcome <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['firstname'] . " " . $employeeDetails[0]['lastname'] ?></span></h4>
-            <a href="<?php echo url_for('/supervisor/leaveform.php')?>" class="h6 button">Apply For Leave</a>
+            <a href="<?php echo url_for('/management/leaveform.php')?>" class="h6 button">Apply For Leave</a>
         </div>
         <h5 class="jbe__general-header-h5">Leave information</h5>
         <div class="jbe__homepage-leave-info">
