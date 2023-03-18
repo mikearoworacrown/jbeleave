@@ -62,6 +62,17 @@
             $csv .= '"' . $row['daysleft'] . '"' . "\n";
         }
         echo $csv;
+    }else {
+        $timestamp = time();
+        $filename = 'Employee_report_' . $timestamp . '.csv';
+ 
+        // Headers for download 
+        header("Content-Disposition: attachment; filename=\"$filename\""); 
+        header("Content-Type: application/vnd.ms-excel"); 
+
+        $csv = '"Employee ID","Employee Name","Department","Supervisor","Leave Year","Total Leave","Start Date","End Date","Resumption Date","Number of Days","Replace By","Days Taken","Day Left"' . "\n";
+        // output data of each row
+        echo $csv;
     }
 
 ?>

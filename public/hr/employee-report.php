@@ -19,8 +19,8 @@
     include(SHARED_PATH . "/header.php");
 ?>
 
-<section class="jbe__container-fluid jbe__table jbe__employees-record">
-    <div class="jbe__container">
+<section class="jbe__container-fluid jbe__table jbe__employees-report">
+    <div class="jbe__container" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>

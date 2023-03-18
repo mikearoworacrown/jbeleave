@@ -22,7 +22,11 @@
     $getleaveapplication = $employeeRecord->getleaveapplication($employee_id, $year);
 
     $_SESSION['department'] = $employeeDetails[0]['department'];
-    $employeetype = "user";
+    if($_SESSION['department'] == "Human Resources"){
+        $employeetype = "hr";
+    }else {
+        $employeetype = "user";
+    }
     $supervisor_status = "Pending";
 
     $teamApplications =  $employeeRecord->getAllTeamApplication($_SESSION['department'], $employeetype, $supervisor_status);
