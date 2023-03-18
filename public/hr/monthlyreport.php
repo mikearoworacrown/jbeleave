@@ -42,7 +42,7 @@
     <div class="jbe__container">
         <div class="jbe__homepage-welcome">
             <div>
-                <h5 class="jbe__general-header-h5">Yearly Report</h5>
+                <h5 class="jbe__general-header-h5">Monthly Report</h5>
                 <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
             </div>
             <div form action="" method="post" class="yearreport">
@@ -54,7 +54,7 @@
                     <?php } ?>
                 </select>
                 <h5><span class="jbe__homepage-name">Choose Month:</span></h5>
-                <select class="indexselect leaveyearindex">
+                <select class="indexselect leaveyearindex" onchange="showMonth(this.value)">
                     <?php
                         for($i = 0; $i < $castMonth; $i++){?>
                             <option value='<?php echo $i+1;?>' <?php if($castMonth == $i+1){ echo 'selected';} ?>><?php echo $monthswords[$i]; $_SESSION['monthsword'] = $monthswords[$i];?></option>
@@ -65,8 +65,22 @@
     </div>
 </section>
 
+<script>
+    function showMonth(month) {
+        let year = document.querySelector(".leaveyearindex").value;
+        let xml = new XMLHttpRequest();
+        xml.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("monthlybody").innerHTML = this.responseText;
+            }
+        }
+        xml.open("GET", "../ajax_php/getmonthlytable.php?month="+month+"&year="+year, true);
+        xml.send();
+    }
+</script>
+
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container" id="monthlybody" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -111,7 +125,7 @@
                 }?>
             </tbody>
         </table>
-
+        
         <div class="jbe__homepage-welcome" style="margin-top: 2rem;">
             <form action="exportmonthlyreport.php" method="POST" class="yearlyreport">
                 <input type="hidden" name="year" value="<?php echo $year; ?>">

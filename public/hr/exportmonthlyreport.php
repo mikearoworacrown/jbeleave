@@ -58,5 +58,15 @@
             $csv .= '"' . $row['daysleft'] . '"' . "\n";
         }
         echo $csv;
+    }else{
+        $timestamp = time();
+        $filename = 'monthly_report_' . $timestamp . '.csv';
+ 
+        // Headers for download 
+        header("Content-Disposition: attachment; filename=\"$filename\""); 
+        header("Content-Type: application/vnd.ms-excel"); 
+
+        $csv = '"Employee ID","Employee Name","Department","Supervisor","Leave Month","Leave Year","Total Leave","Start Date","End Date","Resumption Date","Number of Days","Replaced By","Days Taken","Day Left"' . "\n";
+        echo $csv;
     }
 ?>

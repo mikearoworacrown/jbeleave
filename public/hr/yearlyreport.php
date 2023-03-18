@@ -30,7 +30,7 @@
             </div>
             <div form action="" method="post" class="yearreport">
                 <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
-                <select class="indexselect leaveyearindex">
+                <select class="indexselect leaveyearindex" onchange="showYear(this.value)">
                     <?php
                         for($i = 0; $i < count($dbYears); $i++){?>
                             <option value='<?php echo $dbYears[$i]['year'];?>' <?php if($year == $dbYears[$i]['year']){ echo 'selected';} ?>><?php echo $dbYears[$i]['year']; ?></option>
@@ -41,8 +41,21 @@
     </div>
 </section>
 
+<script>
+    function showYear(year) {
+        let xml = new XMLHttpRequest();
+        xml.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("yealybody").innerHTML = this.responseText;
+            }
+        }
+        xml.open("GET", "../ajax_php/getyearlytable.php?year="+year, true);
+        xml.send();
+    }
+</script>
+
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container"  id="yealybody" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -86,7 +99,7 @@
             </tbody>
         </table>
 
-        <div class="jbe__homepage-welcome" style="margin-top: 2rem;">
+        <div class="jbe__homepage-welcome yealyexportform" style="margin-top: 2rem;">
             <form action="exportyearlyreport.php" method="POST" class="yearlyreport">
                 <input type="hidden" name="year" value="<?php echo $year; ?>">
                 <button class="h6 button yearlyreportbtn">Export yearly Report</a>
