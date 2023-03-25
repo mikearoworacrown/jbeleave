@@ -9,11 +9,11 @@ if(formLogin){
 
 if(submitBtnLogin){
     submitBtnLogin.onclick = () => {
-        let email_phone = document.querySelector("#email-phone");
+        let username = document.querySelector("#username");
         let password = document.querySelector("#password");
         let errorMsgLogin = document.querySelector(".jbe__error-msg");
     
-        if(email_phone.value !== "" && password.value !== ""){
+        if(username.value !== "" && password.value !== ""){
             //Ajax
             let xhr = new XMLHttpRequest(); //creating XML object
             xhr.open("POST", "ajax_php/login.php", true);
@@ -35,6 +35,9 @@ if(submitBtnLogin){
                         } else if (data == "management"){
                             console.log(data);
                             location.href = "management/";
+                        } else if (data == "admin"){
+                            console.log(data);
+                            location.href = "admin/";
                         }
                         else{
                             errorMsgLogin.textContent = data;
@@ -48,16 +51,16 @@ if(submitBtnLogin){
             let formData = new FormData(formLogin); //creating new formData object
             xhr.send(formData); //sending the form data to php
         }
-        else if(email_phone.value == "" && password.value !== "") {
-            errorMsgLogin.textContent = "Email address/Phone Number cannot be empty";
+        else if(username.value == "" && password.value !== "") {
+            errorMsgLogin.textContent = "Username cannot be empty";
             errorMsgLogin.style.display = "block";
         }
-        else if(email_phone.value !== "" && password.value == "") {
+        else if(username.value !== "" && password.value == "") {
             errorMsgLogin.textContent = "Password cannot be empty";
             errorMsgLogin.style.display = "block";
         }
         else {
-            errorMsgLogin.textContent = "Email address/Phone Number and password cannot be empty";
+            errorMsgLogin.textContent = "username and password cannot be empty";
             errorMsgLogin.style.display = "block";
         }
     }

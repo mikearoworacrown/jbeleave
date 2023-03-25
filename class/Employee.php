@@ -39,18 +39,21 @@ class Employee {
     }
 
     /**********************************************GET EMPLOYEE FROM DATABASE********************************************************/
-    public function getEmployee($email_phone){
-        $query = "SELECT * FROM jbe_employees where email_phone = ?";
+    public function getEmployee($username){
+        if(strpos($username, " ")){
+            $username = str_replace(" ","_",$username);
+        }
+        $query = "SELECT * FROM jbe_employees where username = ?";
         $paramType = 's';
         $paramArray = array(
-            $email_phone
+            $username
         );
         $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
         return $employeeRecord;
     }
 
     public function getTotalNumberOfEmployee(){
-        $query = 'SELECT * FROM jbe_employees';
+        $query = "SELECT * FROM jbe_employees WHERE NOT employeetype='admin'";
         $paramType = "";
         $paramArray = "";
         $totalNumOfEmployee  = $this->db_handle->select($query, $paramType, $paramArray);
@@ -58,7 +61,7 @@ class Employee {
     }
 
     public function getAllEmployee() {
-        $query = "SELECT * FROM jbe_employees ORDER BY employee_id DESC";
+        $query = "SELECT * FROM jbe_employees WHERE NOT employeetype='admin' ORDER BY employee_id DESC";
         $paramType = "";
         $paramArray = "";
 
@@ -191,10 +194,55 @@ class Employee {
         return $employeeRecord;
     }
     
+    public function getLineManagers() {
+        $query = "SELECT * FROM line_manager";
+        $paramType = "";
+        $paramArray = "";
+
+        $allManager = $this->db_handle->select($query, $paramType, $paramArray);
+        return $allManager;
+    }
+
+    public function getLineManagerByName($fullname){
+        $query = "SELECT * FROM line_manager WHERE fullname = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $fullname
+        );
+
+        $lineManager = $this->db_handle->select($query, $paramType, $paramArray);
+        return $lineManager;
+    }
+
+    public function getLineManagerByDeparment($department) {
+        $query = "SELECT * FROM line_manager WHERE department = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $department
+        );
+
+        $lineManager = $this->db_handle->select($query, $paramType, $paramArray);
+
+        if($lineManager){
+            return $lineManager;
+        }else {
+            // $query = "SELECT * FROM line_manager WHERE CONCAT(line_manager.job_description) LIKE ?";
+            // $like = "Branch";
+            // $likeappend = '%'.$like.'%';
+            // $paramType = "s";
+            // $paramArray = array(
+            //     $likeappend
+            // );
+            // $lineManager = $this->db_handle->select($query, $paramType, $paramArray);
+            $lineManager = $this->getLineManagers();
+            return $lineManager;
+        }
+        
+    }
 
     /**********************************************LOGIN EMPLOYEE*********************************************************/
     public function loginEmployee(){
-        $employeeRecord = $this->getEmployee($_SESSION["email-phone"]);
+        $employeeRecord = $this->getEmployee($_SESSION["username"]);
         $loginPassword = 0;
         if (!empty($employeeRecord)) {
             if (!empty($_SESSION["password"])) {
@@ -215,7 +263,8 @@ class Employee {
         }
 
         if ($loginPassword == 1) {
-            $_SESSION["email-phone"] = $employeeRecord[0]["email_phone"];
+            $_SESSION["username"] = $employeeRecord[0]["username"];
+            $_SESSION["fullname"] = $employeeRecord[0]["fullname"];
             $_SESSION["employee-id"] = $employeeRecord[0]["employee_id"];
             $_SESSION["staff-id"] = $employeeRecord[0]["staff_id"];
             $_SESSION["totalleave"] = $employeeRecord[0]["totalleave"];
@@ -235,6 +284,8 @@ class Employee {
                     $loginStatus = "hr";
                 }else if ($_SESSION["employeetype"] == "management") {
                     $loginStatus = "management";
+                }else if ($_SESSION["employeetype"] == "admin") {
+                    $loginStatus = "admin";
                 }
                 return $loginStatus;
             }
@@ -256,7 +307,7 @@ class Employee {
         {
             $response = array(
                 "status" => "error",
-                "message" => "Email already exists."
+                "message" => "Email/phone number already exists."
             );
         } 
         else
@@ -266,13 +317,17 @@ class Employee {
                 // do not attempt to do your own encryption, it is not safe
                 $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
             }
+            $fullname = $_POST['firstname'] . " " . $_POST['lastname'];
+            $username = $_POST['firstname'] . "_" . $_POST['lastname'];
 
-            $query = 'INSERT INTO jbe_employees (firstname, lastname, password, email_phone, department, staff_id, job_description, branch, region, 
-             linemanagername, linemanageremail, totalleave) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-            $paramType = 'ssssssssssss';
+            $query = 'INSERT INTO jbe_employees (firstname, lastname, fullname, username, password, email_phone, department, staff_id, job_description, branch, region, 
+             linemanagername, linemanageremail, totalleave) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            $paramType = 'ssssssssssssss';
             $paramValue = array(
                 $_POST['firstname'],
                 $_POST['lastname'],
+                $fullname,
+                $username,
                 $hashedPassword,
                 $_POST['email-phone'],
                 $_POST['department'],
@@ -315,6 +370,25 @@ class Employee {
          return $response;
     }
 
+    public function lineManagerExist($username) {
+        $query = "SELECT * FROM line_manager WHERE username = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $username
+        );
+        $resultSet = $this->db_handle->select($query, $paramType, $paramArray);
+        $count = 0;
+        if(is_array($resultSet)){
+            $count = count($resultSet);
+        }
+        if($count > 0){
+            $result = true;
+        }else{
+            $result = false;
+        }
+        return $result;
+    }
+
     public function updateEmployeeRecord() {
         if($_SESSION['database-email_phone'] !== $_POST['email-phone']){
             $isEmailExist = $this->isEmailExist($_POST['email-phone']);
@@ -326,12 +400,16 @@ class Employee {
                 );
             }
         }else{
-            $query = 'UPDATE jbe_employees SET firstname = ?, lastname = ?, email_phone = ?, staff_id = ?, department = ?, employeetype = ?, job_description = ?, branch = ?, 
+            $query = 'UPDATE jbe_employees SET firstname = ?, lastname = ?, fullname = ?, username = ?, email_phone = ?, staff_id = ?, department = ?, employeetype = ?, job_description = ?, branch = ?, 
             linemanagername = ?, linemanageremail = ?, totalleave = ?, status = ?  WHERE employee_id = ?';
-            $paramType = 'ssssssssssssi';
+            $fullname = $_POST['firstname'] . " " . $_POST['lastname'];
+            $username = $_POST['firstname'] . "_" . $_POST['lastname'];
+            $paramType = 'ssssssssssssssi';
             $paramValue = array(
                 $_POST['firstname'],
                 $_POST['lastname'],
+                $fullname,
+                $username,
                 $_POST['email-phone'],
                 $_POST['employee-no'],
                 $_POST['department'],
@@ -344,7 +422,38 @@ class Employee {
                 $_POST['employee-status'],
                 $_POST['employee_id']
             );
+
             $employeeId = $this->db_handle->update($query, $paramType, $paramValue);
+
+            if($_POST['employee-type'] == "supervisor" || $_POST['employee-type'] == "management"){
+                $line_manager = $this->lineManagerExist($username);
+                if(!$line_manager){
+                    $query = 'INSERT INTO line_manager (employee_id, fullname, username, email, department, job_description, employeetype)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+                    $paramType = 'issssss';
+                    $paramValue = array (
+                        $_POST['employee_id'],
+                        $fullname,
+                        $username,
+                        $_POST['email-phone'],
+                        $_POST['department'],
+                        $_POST['job-description'],
+                        $_POST['employee-type']
+                    );
+                    $linManagerId = $this->db_handle->insert($query, $paramType, $paramValue);
+                }
+            }else if($_POST['employee-type'] == "hr" || $_POST['employee-type'] == "user"){
+                $line_manager = $this->lineManagerExist($username);
+                if($line_manager){
+                    $query = 'DELETE FROM line_manager WHERE username = ?';
+                    $paramType = "s";
+                    $paramValue = array(
+                        $username
+                    );
+                    $linManagerId = $this->db_handle->delete($query, $paramType, $paramValue);
+                }
+            }
             $_SESSION['update-message'] = $_POST['firstname'] . " Employee Record Updated Succesfully";
             $response = array(
                 "status" => "success",

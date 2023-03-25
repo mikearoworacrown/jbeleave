@@ -4,7 +4,7 @@
 
     $page_title = "Staff Record";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }
@@ -32,10 +32,10 @@
             }
         }else{
             $range1 = 0;
-            if($totalNumberOfEmployee < 15){
+            if($totalNumberOfEmployee < 10){
                 $range2 = $totalNumberOfEmployee;
             }else{
-                $range2 = 15;
+                $range2 = 10;
             }
         }
 
@@ -132,7 +132,6 @@
                 <tr>
                     <th scope="col" width="4%">S/N</th>
                     <th scope="col">Employee Name</th>
-                    <th scope="col">Email Address/Phone Number</th>
                     <th scope="col">Department</th>
                     <th scope="col">Job Description</th>
                     <th scope="col">Total Leave</th>
@@ -146,8 +145,7 @@
                     if(!empty($employeeRecord)){
                         for($i = 0; $i < count($employeeRecord); $i++){
                             echo "<tr><th scope='row'>" . $i+1 . "</th>
-                            <td>" . $employeeRecord[$i]['firstname'] . ' ' . $employeeRecord[$i]['lastname']  . "</td>
-                            <td>" . $employeeRecord[$i]['email_phone']  . "</td>
+                            <td>" . $employeeRecord[$i]['fullname'] ."</td>
                             <td>" . $employeeRecord[$i]['department'] ."</td>
                             <td>" . $employeeRecord[$i]['job_description'] . "</td>
                             <td>" . $employeeRecord[$i]['totalleave'] . "</td>
@@ -167,8 +165,7 @@
                     else{
                         for($i = $range1; $i < $range2; $i++){
                             echo "<tr><th scope='row'>" . $i+1 . "</th>
-                            <td>" . $allEmployee[$i]['firstname'] . ' ' . $allEmployee[$i]['lastname']  . "</td>
-                            <td>" . $allEmployee[$i]['email_phone']  . "</td>
+                            <td>" . $allEmployee[$i]['fullname'] . "</td>
                             <td>" . $allEmployee[$i]['department'] ."</td>
                             <td>" . $allEmployee[$i]['job_description'] . "</td>
                             <td>" . $allEmployee[$i]['totalleave'] . "</td>
@@ -188,7 +185,7 @@
         </table>
         <div class="pages" style="position: relative;">
         <?php
-        if($totalNumberOfEmployee > 15){
+        if($totalNumberOfEmployee > 10){
             for($i = 1; $i <= $page_total; $i++) {
                 echo "<a class='pagbtn page".$i."'>$i</a>";
             }

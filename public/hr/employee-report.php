@@ -21,6 +21,7 @@
 
 <section class="jbe__container-fluid jbe__table jbe__employees-report">
     <div class="jbe__container" style="overflow:auto;">
+        <h5 class="jbe__general-header-h5">Leave information - Employee's Report</h5>
         <table class="table">
             <thead class="thead-dark">
                 <tr>

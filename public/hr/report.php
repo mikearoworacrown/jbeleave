@@ -5,7 +5,7 @@
 
     $page_title = "Granted Leave Request";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }

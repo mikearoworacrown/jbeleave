@@ -4,13 +4,13 @@
 
     $page_title = "Leave Request Form";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }
 
     $employeeRecord = new Employee();
-    $employeeDetails = $employeeRecord->getEmployee($_SESSION['email-phone']);
+    $employeeDetails = $employeeRecord->getEmployee($_SESSION['username']);
 
     $leaveYears = $employeeRecord->getLeaveYears($_SESSION['employee-id']);
 
@@ -32,7 +32,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-name">Name: </label>
-                        <input type="text" class="form-control" name="leave-name" id="leave-name" value="<?php echo $employeeDetails[0]['firstname'] . " " . $employeeDetails[0]['lastname']?>" disabled>
+                        <input type="text" class="form-control" name="leave-name" id="leave-name" value="<?php echo $employeeDetails[0]['fullname'];?>" disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-department">Department: </label>

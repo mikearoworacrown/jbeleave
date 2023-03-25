@@ -4,7 +4,7 @@
 
     $page_title = "Staff Record";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }
@@ -13,6 +13,7 @@
     $employeeDetails = $employeeRecord->getEmployee($_SESSION['email-phone']);
 
     $departments = $employeeRecord->getDepartments();
+    $lineManagers = $employeeRecord->getLineManagers();
     $regions = $employeeRecord->getRegions();
     $today = date("d-m-Y");
 
@@ -115,6 +116,71 @@
                         }
                     ?>
                 </select>
+                <script>
+                    let department = document.querySelector("#department");
+                    department.onchange = () => {
+                        let department_id = department.value;
+                        let selected = department.options[department.selectedIndex].text;
+                        let toSend = {
+                            department_id: department_id
+                        }
+                        let xhr = new XMLHttpRequest(); //creating XML object
+                        xhr.open("POST", "getlinemanagers.php", true);
+                        xhr.onload = () => {
+                            if(xhr.readyState === XMLHttpRequest.DONE){
+                                if(xhr.status === 200){
+                                    let data = xhr.response;
+                                    let dataParsed = JSON.parse(data);
+                                    // console.log(selected);
+                                    // console.log(dataParsed[0]['department']);
+                                    if(dataParsed[0]['department'] == selected){
+                                        let selectName = document.getElementById("line-manager");
+                                        let optionName = document.createElement("option");
+                                        optionName.text = dataParsed[0]['fullname'];
+                                        optionName.value = dataParsed[0]['fullname'];
+                                        while (selectName.lastChild.value !== '') {
+                                                selectName.removeChild(selectName.lastChild);
+                                        }
+                                        selectName.appendChild(optionName);
+
+                                        let selectEmail = document.getElementById("manager-email");
+                                        let optionEmail = document.createElement("option");
+                                        optionEmail.text = dataParsed[0]['email'];
+                                        optionEmail.value = dataParsed[0]['email'];
+                                        while (selectEmail.lastChild.value !== '') {
+                                                selectEmail.removeChild(selectEmail.lastChild);
+                                        }
+                                        selectEmail.append(optionEmail);
+                                    }else{
+                                        let selectName = document.getElementById("line-manager");
+                                        let selectEmail = document.getElementById("manager-email");
+                                        while (selectName.lastChild.value !== '') {
+                                            selectName.removeChild(selectName.lastChild);
+                                        }
+                                        while (selectEmail.lastChild.value !== '') {
+                                                selectEmail.removeChild(selectEmail.lastChild);
+                                        }
+                                        for(let i = 0; i < dataParsed.length; i++){
+                                            let optionName = document.createElement("option");
+                                            optionName.text = dataParsed[i]['fullname'];
+                                            optionName.value = dataParsed[i]['fullname'];
+                                            selectName.appendChild(optionName);
+
+                                            let optionEmail = document.createElement("option");
+                                            optionEmail.text = dataParsed[i]['email'];
+                                            optionEmail.value = dataParsed[i]['email'];
+                                            selectEmail.append(optionEmail);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        let jsonString = JSON.stringify(toSend);
+                        // console.log(jsonString);
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.send(jsonString);
+                    }
+                </script>
             </div>
             <div class="form-group">
                 <label for="employee-no" id="label-employee-no">Employee ID.<span class="jbe__required jbe__error" id="employeeno-info"></span></label>
@@ -132,12 +198,60 @@
 
             <div class="form-group">
                 <label for="line-manager" id="label-line-manager">Line Manager<span class="jbe__required jbe__error" id="line-manager-info"></span></label>
-                <input type="text" class="form-control" name="line-manager" id="line-manager" placeholder="Enter Line Manager Name" value ="" required/>
+                <select id="line-manager" name="line-manager" class="form-select" required>
+                    <option disabled selected value="">Select Line Manager</option>
+                    <?php 
+                        if(!empty($lineManagers)){
+                            for($i = 0; $i < count($lineManagers); $i++){
+                    ?>
+                                <option value="<?php echo $lineManagers[$i]['fullname'] ?>"><?php echo $lineManagers[$i]['fullname'] ?></option>
+                    <?php       
+                            }
+                        }
+                    ?>
+                </select>
+                <script>
+                    let selectFullname = document.querySelector("#line-manager");
+                    selectFullname.onchange = () => {
+                        let fullname = selectFullname.value;
+                        let toSend = {
+                            fullname: fullname
+                        }
+                        let xhr = new XMLHttpRequest(); //creating XML object
+                        xhr.open("POST", "getlinemanagers.php", true);
+                        xhr.onload = () => {
+                            if(xhr.readyState === XMLHttpRequest.DONE){
+                                if(xhr.status === 200){
+                                    let data = xhr.response;
+                                    let dataParsed = JSON.parse(data);
+                                    let selectEmail = document.getElementById("manager-email");
+                                    let optionEmail = document.createElement("option");
+                                    optionEmail.text = dataParsed[0]['email'];
+                                    optionEmail.value = dataParsed[0]['email'];
+                                    while (selectEmail.lastChild.value !== '') {
+                                            selectEmail.removeChild(selectEmail.lastChild);
+                                    }
+                                    selectEmail.append(optionEmail);
+                                    
+                                }
+                            }
+                        }
+                        let jsonString = JSON.stringify(toSend);
+                        // console.log(jsonString);
+                        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                        xhr.send(jsonString);
+                    }
+                </script>
             </div>
 
             <div class="form-group">
                 <label for="manager-email" id="label-manager-email">Line Manager Email<span class="jbe__required jbe__error" id="manager-email-info"></span></label>
-                <input type="text" class="form-control" name="manager-email" id="manager-email" placeholder="Enter Line Manager Email" value ="" required/>
+                <!-- <input type="text" class="form-control" name="manager-email" id="manager-email" placeholder="Enter Line Manager Email" value ="" required/> -->
+                
+                <select id="manager-email" name="manager-email" class="form-select" required>
+                    <option disabled selected value="">Line Manager Email</option>
+                    
+                </select>
             </div>
 
             <div class="form-group">
@@ -189,7 +303,6 @@
                                             option.value = dataParsed[0]['region_id'];
                                             select.appendChild(option);
                                         }
-                                        
                                     }
                                 }
                             }

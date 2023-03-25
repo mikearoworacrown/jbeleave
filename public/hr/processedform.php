@@ -2,7 +2,7 @@
     require_once("C:/xampp/htdocs/jbeleave/private/initialize.php");
     require_once(PROJECT_PATH . "/class/Employee.php");
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
         header('Location: ../');
         exit();
     }

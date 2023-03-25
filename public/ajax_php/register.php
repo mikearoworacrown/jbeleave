@@ -13,6 +13,8 @@
     $email_phone = $_POST['email-phone'];
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
+    $fullname = $_POST['firstname'] . " " . $_POST['lastname'];
+    $username = $_POST['firstname'] . "_" . $_POST['lastname'];
     $department_id = $_POST['department-id'];
     $employee_no = $_POST['employee-no'];
     $job_title = $_POST['job-title'];
@@ -38,7 +40,7 @@
     $phone =  preg_match($phone_number_validation_regex, $email_phone);
     $password = preg_match($password_regex, $passwordReg);
 
-    if($email || $phone) {
+    if(($email || $phone) && isset($username)) {
         if($password){
             $response = $employee->registerEmployee();
             echo json_encode($response);

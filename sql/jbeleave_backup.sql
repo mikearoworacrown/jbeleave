@@ -18,8 +18,10 @@ CREATE TABLE `jbe_employees` (
   `employee_id` int(11) NOT NULL AUTO_INCREMENT,
   `firstname` varchar(50) NOT NULL,
   `lastname` varchar(50) NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL UNIQUE,
   `password` varchar(200) NOT NULL,
-  `email_phone` varchar(50) NOT NULL UNIQUE,
+  `email_phone` varchar(50) NULL UNIQUE,
   `staff_id` varchar(200) NOT NULL,
   `department` varchar(50) NOT NULL,
   `job_description` varchar(255) NOT NULL,
@@ -57,9 +59,28 @@ CREATE TABLE `jbe_employees_leave` (
   `leavetype` varchar(50) NOT NULL,
   `supervisor_status` varchar(50) DEFAULT 'Pending',
   `hr_status` varchar(10) DEFAULT 'Pending',
+  `bm_status` varchar(10) DEFAULT 'Pending',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`employee_leave_id`),
   CONSTRAINT `jbe_employees_employee_id_fk1` FOREIGN KEY (`employee_id`)
+  REFERENCES `jbe_employees` (`employee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `line-manager`
+-- 
+--
+CREATE TABLE `line_manager` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `employee_id` int(11) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `department` varchar(50) NOT NULL,
+  `employeetype` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `jbe_employees_employee_id_fk2` FOREIGN KEY (`employee_id`)
   REFERENCES `jbe_employees` (`employee_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -77,7 +98,7 @@ CREATE TABLE `leave_years` (
   `daystaken` int(11) NOT NULL,
   `daysleft` int(11) NOT NULL,
   PRIMARY KEY (`leave_year_id`),
-  CONSTRAINT `jbe_employees_employee_id_fk2` FOREIGN KEY (`employee_id`)
+  CONSTRAINT `jbe_employees_employee_id_fk3` FOREIGN KEY (`employee_id`)
   REFERENCES `jbe_employees` (`employee_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -188,12 +209,13 @@ INSERT INTO `branches` (`branch`, `branch_slug`, `region_id`) VALUES
 ('Port Harcourt', 'port_harcourt', 1),
 ('Victoria Island', 'vi', 1);
 
+INSERT INTO `jbe_employees` VALUES ('1', 'Admin', 'JB', 'Admin', 'Admin', '$2y$10$h46J28gKqzAB78ufb5LtTuzZyAyz6IDFbrOP6vfO8jdvhO5noCd2G', 'Ay_michael96@yahoo.com', '0-0000-000', 'Administrator', 'Administrator', 'Ikeja', 'Nigeria', 'admin', 'Administrator', 'Ay_michael96@yahoo.com', '0', 'active', current_timestamp());
+INSERT INTO `jbe_employees` VALUES ('2', 'Ugoh', 'Akongwubel', 'Ugoh Akongwubel', 'Ugoh_Akongwubel', '$2y$10$mTgRL25x11/O7W9Uo2hm9OyKwiRgyjQ1CxWNO0T00YOvIPMRoRp2C', 'ugoh.akongwubel@jubailibros.com', '3-2011-001', 'Human Resources', 'HR Officer', 'Victoria Island', 'Nigeria', 'hr', 'Esther Abhulimen', 'Ay_michael96@yhoo.com', '22', 'active', current_timestamp());
+
+INSERT INTO `leave_years` (`leave_year_id`, `employee_id`, `year`, `totalleave`, `daystaken`, `daysleft`) VALUES ('1', '2', '2022', '22', '22', '0');
+INSERT INTO `leave_years` (`leave_year_id`, `employee_id`, `year`, `totalleave`, `daystaken`, `daysleft`) VALUES ('2', '2', '2023', '22', '0', '22');
+
+
 GRANT ALL PRIVILEGES ON jbeleave.* TO mike@localhost identified BY 'mike';
-
-INSERT INTO `jbe_employees` VALUES ('1', 'Ugoh', 'Akongwubel', '$2y$10$mTgRL25x11/O7W9Uo2hm9OyKwiRgyjQ1CxWNO0T00YOvIPMRoRp2C', 'ugoh.akongwubel@jubailibros.com', '3-2011-001', 'Human Resources', 'HR Officer', 'Victoria Island', 'Nigeria', 'hr', 'Esther Abhulimen', 'Ay_michael96@yhoo.com', '22', 'active', current_timestamp());
-
-INSERT INTO `leave_years` (`leave_year_id`, `employee_id`, `year`, `totalleave`, `daystaken`, `daysleft`) VALUES ('1', '1', '2022', '22', '22', '0');
-INSERT INTO `leave_years` (`leave_year_id`, `employee_id`, `year`, `totalleave`, `daystaken`, `daysleft`) VALUES ('2', '1', '2023', '22', '0', '22');
-
 
 COMMIT;
