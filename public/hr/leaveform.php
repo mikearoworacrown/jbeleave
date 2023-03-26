@@ -178,6 +178,7 @@
 
                 startDate.onchange = () => {
                     // console.log(startDate.value);
+                    resumptionDate.value = "";
                     let startDateValue = {
                         startDateInputValue: startDate.value
                     }

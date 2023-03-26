@@ -240,6 +240,34 @@ class Employee {
         
     }
 
+    public function getBranchManager() {
+        $query = "SELECT * FROM line_manager WHERE CONCAT(line_manager.job_description) LIKE ?";
+
+        $like = "Branch";
+        $likeappend = '%'.$like.'%';
+
+        $paramType = "s";
+        $paramArray = array(
+            $likeappend
+        );
+
+        $branchManager = $this->db_handle->select($query, $paramType, $paramArray);
+        return $branchManager;
+    } 
+
+    public function getHrByName($like) {
+        $query = "SELECT * FROM jbe_employees WHERE CONCAT(jbe_employees.fullname) LIKE ?";
+        $likeappend = '%'.$like.'%';
+
+        $paramType = "s";
+        $paramArray = array(
+            $likeappend
+        );
+
+        $hr = $this->db_handle->select($query, $paramType, $paramArray);
+        return $hr;
+    }
+
     /**********************************************LOGIN EMPLOYEE*********************************************************/
     public function loginEmployee(){
         $employeeRecord = $this->getEmployee($_SESSION["username"]);
@@ -634,8 +662,8 @@ class Employee {
 
                 //Recipients
                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
-                $mail->AddAddress($_SESSION["linemanageremail"], $_SESSION["linemanagername"]);	
-                // $mail->AddAddress($_SESSION["email-phone"], $_SESSION["firstname"]); 
+                // $mail->AddAddress($_SESSION["linemanageremail"], $_SESSION["linemanagername"]);	
+                $mail->AddAddress("Ayoaro85@gmail.com", "Ayodele Aroworade"); 
 
                 //Content
                 $mail->isHTML(true);                                  //Set email format to HTML
@@ -643,7 +671,7 @@ class Employee {
                 $content = '<div style="background-color: white; padding: 5px;">
                 <h5 style="font-size: 1.25rem">Dear ' .  $_SESSION['linemanagername'] . '</h5>
                 <h6 style="font-size: 1rem">Kindly Approve <span style="color:#091281">' . $_SESSION['firstname'] . ' ' . $_SESSION['lastname'] . '</span> Leave Application </h6>
-                <a style="font-size: 1rem" style="padding-top: 1px;" href="http://localhost/phpprojects/jbe-leave/public/">Click on link for rediection</a>
+                <a style="font-size: 1rem" style="padding-top: 1px;" href="http://localhost/jbeleave/public/">Click on link for rediection</a>
                 <h6 style="font-size: 1rem">Best Regards</h6>
                 </div>';
                 $mail->MsgHTML($content);
@@ -674,16 +702,19 @@ class Employee {
         return $response;
     }
 
-    public function updateTeamLeave($team_employee_id, $team_employee_leave_id){
-        $query0 = "SELECT * FROM jbe_employees WHERE employee_id = ?";
-        $paramType0 = "s";
-        $paramArray0 = array(
-            $team_employee_id
-        );
+    public function updateTeamLeave($team_employee_id, $team_employee_leave_id, $supervisor_status){
+        $teamLeaveRecord = $this->getEmployeeLeaveRecord($team_employee_leave_id, $team_employee_id, "Pending");
+        $hr_name = "Ugoh Akongwubel";
+        $hr = $this->getHrByName($hr_name);
 
-        $teamDetails = $this->db_handle->select($query0, $paramType0, $paramArray0);
+        $hr_fullname = $hr[0]['fullname'];
+        $hr_email = $hr[0]['email_phone'];
+        $firstname = $teamLeaveRecord[0]['firstname'];
+        $lastname = $teamLeaveRecord[0]['lastname'];
+        $employee_fullname = $firstname . " " . $lastname;
+        $employee_email = $teamLeaveRecord[0]['email_phone'];
 
-        if($_SESSION['team-leave-status'] == "Declined" || $_SESSION['team-leave-status'] == "Pending"){
+        if($_SESSION['team-leave-status'] == "Pending"){
             $query = "UPDATE jbe_employees_leave SET replacedby = ?, supervisor_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
            
             $paramType = "ssii";
@@ -703,6 +734,65 @@ class Employee {
             );
             
             return $response;  
+        }else if ($_SESSION['team-leave-status'] == "Declined") {
+            $query = "UPDATE jbe_employees_leave SET replacedby = ?, supervisor_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+           
+            $paramType = "ssii";
+            $paramArray = array(
+                $_SESSION['team-leave-replaceby'],
+                $_SESSION['team-leave-status'],
+                $team_employee_id,
+                $team_employee_leave_id
+            );
+
+            $updatedTeamLeave = $this->db_handle->update($query, $paramType, $paramArray);
+
+            //Create an instance; passing `true` enables exceptions
+            $mail = new PHPMailer(true);
+
+            try {
+                //Server settings
+                // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                $mail->isSMTP();                                            //Send using SMTP
+                $mail->Host       = 'mail.qualisbusinesssupport.com';                     //Set the SMTP server to send through
+                $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                $mail->Username   = 'jbetest@qualisbusinesssupport.com';                     //SMTP username
+                $mail->Password   = 'K3l3shamm@';                               //SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                //Recipients
+                $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
+                $mail->AddAddress("Ayoaro85@gmail.com", "Mike");	
+                // $mail->AddAddress($employee_email, $employee_fullname); 
+
+                //Content
+                $mail->isHTML(true);                                  //Set email format to HTML
+                $mail->Subject = 'Leave Application - '. $employee_fullname; 
+                $content = '<div style="background-color: white; padding: 5px;">
+                <h5 style="font-size: 1.25rem">Dear '. $employee_fullname .'</h5>
+                <h6 style="font-size: 1rem">Your Leave Application have been declined</h6>
+                <a style="font-size: 1rem" style="padding-top: 1px;" href="http://localhost/jbeleave/public/">Click on link for rediection</a>
+                <h6 style="font-size: 1rem">Best Regards</h6>
+                </div>';
+                $mail->MsgHTML($content);
+                // $mail->Body    = 'Dear ' . $_SESSION['linemanagername'] . ' Kindly head to your Porter and Approve ' . $_SESSION['firstname'] . ' ' . $_SESSION['lastname'] . ' Leave Application.' . ' Best Regards';
+
+                $mail->send();
+                $_SESSION['message'] = $employee_fullname . " Leave Application Sent to HR";
+                $response = array(
+                    "status" => "success",
+                    "message" => $_SESSION['message']
+                );
+            } catch (Exception $e) {
+                $_SESSION['message'] = "Message could not be sent. Updated Regardless";
+                $response = array(
+                    "status" => "error",
+                    "message" => $_SESSION['message']
+                );
+            }
+            return $response;
+             
         }
         else if($_SESSION['team-leave-status'] == "Approved" ){
             if (isset($_SESSION['team-leave-enddate']) && isset($_SESSION['team-leave-noofdays'])){
@@ -757,23 +847,23 @@ class Employee {
 
                 //Recipients
                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
-                $mail->AddAddress("Ayoaro85@gmail.com", "Ugoh Akongwubel");	
-                // $mail->AddAddress($_SESSION["email-phone"], $_SESSION["firstname"]); 
+                $mail->AddAddress("Ayoaro85@gmail.com", "Personnel VI");	
+                // $mail->AddAddress($hr_email, $hr_fullname); 
 
                 //Content
                 $mail->isHTML(true);                                  //Set email format to HTML
-                $mail->Subject = 'Leave Application - '. $teamDetails[0]['firstname'] . ' ' . $teamDetails[0]['lastname']; 
+                $mail->Subject = 'Leave Application - '. $employee_fullname; 
                 $content = '<div style="background-color: white; padding: 5px;">
-                <h5 style="font-size: 1.25rem">Dear Ugoh</h5>
-                <h6 style="font-size: 1rem">Kindly find <span style="color:#091281">' . $teamDetails[0]['firstname'] . ' ' . $teamDetails[0]['lastname'] . '</span> Leave Application </h6>
-                <a style="font-size: 1rem" style="padding-top: 1px;" href="http://localhost/phpprojects/jbe-leave/public/">Click on link for rediection</a>
+                <h5 style="font-size: 1.25rem">Dear '. $hr_fullname .'</h5>
+                <h6 style="font-size: 1rem">Kindly find <span style="color:#091281">' . $employee_fullname . '</span> Leave Application </h6>
+                <a style="font-size: 1rem" style="padding-top: 1px;" href="http://localhost/jbeleave/public/">Click on link for rediection</a>
                 <h6 style="font-size: 1rem">Best Regards</h6>
                 </div>';
                 $mail->MsgHTML($content);
                 // $mail->Body    = 'Dear ' . $_SESSION['linemanagername'] . ' Kindly head to your Porter and Approve ' . $_SESSION['firstname'] . ' ' . $_SESSION['lastname'] . ' Leave Application.' . ' Best Regards';
 
                 $mail->send();
-                $_SESSION['message'] = $teamDetails[0]['firstname'] . " Leave Application Sent to HR";
+                $_SESSION['message'] = $employee_fullname . " Leave Application Sent to HR";
                 $response = array(
                     "status" => "success",
                     "message" => $_SESSION['message']
@@ -831,40 +921,279 @@ class Employee {
         return $approvedLeaveApplicationLike;
     }
 
+    public function getAllHRApprovedApplication($supervisor_status, $hr_status, $bm_status){
+        $query = 'SELECT jbe_employees.firstname, jbe_employees.lastname, jbe_employees.fullname, jbe_employees.email_phone, 
+        jbe_employees.department, jbe_employees.branch, jbe_employees_leave.* FROM jbe_employees 
+        INNER JOIN jbe_employees_leave ON jbe_employees.employee_id = jbe_employees_leave.employee_id 
+        WHERE jbe_employees_leave.supervisor_status = ? AND jbe_employees_leave.hr_status = ? AND jbe_employees_leave.bm_status = ? ORDER BY employee_leave_id';
+
+        $paramType = "sss";
+        $paramValue = array(
+            $supervisor_status, 
+            $hr_status,
+            $bm_status
+        );
+
+        $allapprovedleave = $this->db_handle->select($query, $paramType, $paramValue);
+        return $allapprovedleave;
+    }
+
+    public function getHRApprovedApplicationById($employee_id, $employee_leave_id) {
+        $query = 'SELECT jbe_employees.firstname, jbe_employees.lastname, jbe_employees.fullname, jbe_employees.email_phone, 
+        jbe_employees.department, jbe_employees.branch, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.employee_id = ? AND 
+        jbe_employees_leave.employee_leave_id = ?';
+
+        $paramType = "ii";
+        $paramValue = array(
+            $employee_id, 
+            $employee_leave_id
+        );
+
+        $hrapprovedleave = $this->db_handle->select($query, $paramType, $paramValue);
+        return $hrapprovedleave;
+    }
 
     public function updateEmployeeLeave($employee_id, $employee_leave_id, $hr_status) {
-        $approvedLeave = $this->getApprovedLeaveApplication("Approved", "Pending");
-        $firstname = $approvedLeave[0]['firstname'];
-        $lastname = $approvedLeave[0]['lastname'];
-        $email = $approvedLeave[0]['email_phone'];
-        $employee_fullname = $firstname . " " . $lastname;
-        $hr_fullname = $_SESSION['firstname'] . " " . $_SESSION['lastname'];
-        if($hr_status == "Approved"){
-            $approvedLeave = $this->getApprovedLeaveApplication("Approved", "Pending");
-        
-            $totalleave = $approvedLeave[0]['totalleave'];
-            $daystaken = $approvedLeave[0]['daystaken'] + $approvedLeave[0]['noofdays'];
-            $daysleft = $totalleave - $daystaken;
-            $hr_attend = "yes";
-            $year = $_SESSION["process-team-year"];
+        $supervisor_status = "Approved";
+        $employeeLeaveRecord = $this->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $supervisor_status);
+        $branchManager = $this->getBranchManager();
 
-            $query0 = "UPDATE leave_years SET daystaken = ?, daysleft = ? WHERE employee_id = ? AND year = ?";
-            $paramType0 = "iiis";
-            $paramArray0 = array(
+        $bm_fullname = $branchManager[0]['fullname'];
+        $bm_email = $branchManager[0]['email'];
+        $hr_fullname = $_SESSION["fullname"];
+        $firstname = $employeeLeaveRecord[0]['firstname'];
+        $lastname = $employeeLeaveRecord[0]['lastname'];
+        $employee_fullname = $firstname . " " . $lastname;
+        $employee_email = $employeeLeaveRecord[0]['email_phone'];
+
+        if($hr_status == "Pending"){
+            $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $paramType = "sii";
+            $paramArray = array(
+                $_POST['leave-status'],
+                $_POST["process-employeeid"],
+                $_POST["process-leave-employeeid"]
+            );
+            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
+
+            $_SESSION['message'] = "Employee Record Updated!";
+            $response = array(
+                "status" => "success",
+                "message" => $_SESSION['message']
+            );
+            
+            return $response;  
+        }else if ($hr_status == "Delcined"){
+            $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $paramType = "sii";
+            $paramArray = array(
+                $_POST['leave-status'],
+                $_POST["process-employeeid"],
+                $_POST["process-leave-employeeid"]
+            );
+            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+
+             //Create an instance; passing `true` enables exceptions
+             $mail = new PHPMailer(true);
+
+             try {
+                 //Server settings
+                 // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                 $mail->isSMTP();                                            //Send using SMTP
+                 $mail->Host       = 'mail.qualisbusinesssupport.com';                     //Set the SMTP server to send through
+                 $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                 $mail->Username   = 'jbetest@qualisbusinesssupport.com';                     //SMTP username
+                 $mail->Password   = 'K3l3shamm@';                               //SMTP password
+                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                 $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+ 
+                 //Recipients
+                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');	
+                 $mail->AddAddress($employee_email, $employee_fullname); 
+ 
+                 //Content
+                 $mail->isHTML(true);                                  //Set email format to HTML
+                 $mail->Subject = 'Leave Application - '. $employee_fullname; 
+                 $content = '<div style="background-color: white; padding: 2px;">
+                 <h5 style="font-size: 1.25rem">Dear ' . $employee_fullname . '</h5>
+                 <h6 style="font-size: 1rem"> Your Leave Request Have Been Declined. Kindly check your porter for more information.</h6>
+                 <a style="font-size: 1rem" href="http://localhost/jbeleave">Click on link for rediection</a>
+                 <h6 style="font-size: 1rem">Best Regards</h6>
+                 </div>';
+                 $mail->MsgHTML($content);
+ 
+                 $mail->send();
+                 $_SESSION['message'] =  $firstname . " " . $lastname . " Leave Application have been processed Successfully.";
+                 $response = array(
+                     "status" => "success",
+                     "message" => $_SESSION['message']
+                 );
+             } catch (Exception $e) {
+                 $_SESSION['message'] = "Message could not be sent. " . $employee_fullname . " Record Updated Regardless";
+                 $response = array(
+                     "status" => "error",
+                     "message" => $_SESSION['message']
+                 );
+
+                 return $response; 
+             }
+        }else if($hr_status == "Approved") {
+            $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $paramType = "sii";
+            $paramArray = array(
+                $_POST['leave-status'],
+                $_POST["process-employeeid"],
+                $_POST["process-leave-employeeid"]
+            );
+            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+
+            //Create an instance; passing `true` enables exceptions
+            $mail = new PHPMailer(true);
+
+            try {
+                //Server settings
+                // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                $mail->isSMTP();                                            //Send using SMTP
+                $mail->Host       = 'mail.qualisbusinesssupport.com';                     //Set the SMTP server to send through
+                $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                $mail->Username   = 'jbetest@qualisbusinesssupport.com';                     //SMTP username
+                $mail->Password   = 'K3l3shamm@';                               //SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                //Recipients
+                $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
+                $mail->AddAddress("Ayoaro85@gmail.com", "Mohammad Farhat");	
+                // $mail->AddAddress($bm_email, $bm_fullname); 
+
+                //Content
+                $mail->isHTML(true);                                  //Set email format to HTML
+                $mail->Subject = 'Leave Application - '. $employee_fullname; 
+                $content = '<div style="background-color: white; padding: 2px;">
+                <h5 style="font-size: 1.25rem">Dear ' . $bm_fullname . '</h5>
+                <h6 style="font-size: 1rem">Kindly Approve '. $employee_fullname .' Leave Application</h6>
+                <a style="font-size: 1rem" href="http://localhost/jbeleave/">Click on link for rediection</a>
+                <h6 style="font-size: 1rem">Best Regards</h6>
+                </div>';
+                $mail->MsgHTML($content);
+
+                $mail->send();
+                $_SESSION['message'] = $employee_fullname . " Leave Application have been processed Successfully.";
+                $response = array(
+                    "status" => "success",
+                    "message" => $_SESSION['message']
+                );
+            } catch (Exception $e) {
+                $_SESSION['message'] = "Message could not be sent. " . $employee_fullname . " Record Updated Regardless";
+                $response = array(
+                    "status" => "error",
+                    "message" => $_SESSION['message']
+                );
+            }
+            return $response;
+        }
+    }
+
+    public function approveEmployeeLeave($employee_id, $employee_leave_id, $bm_status){
+        $employeeLeaveDetail = $this->getHRApprovedApplicationById($employee_id, $employee_leave_id);
+        $employee_fullname = $employeeLeaveDetail[0]["fullname"];
+        $employee_email = $employeeLeaveDetail[0]["email_phone"];
+
+        if($bm_status == "Pending"){
+            $query = "UPDATE jbe_employees_leave SET bm_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $paramType = "sii";
+            $paramArray = array(
+                $bm_status,
+                $employee_id,
+                $employee_leave_id
+            );
+            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+
+            $_SESSION['message'] = "Employee Record Updated!";
+            $response = array(
+                "status" => "success",
+                "message" => $_SESSION['message']
+            );
+            
+            return $response;  
+        }else if ($bm_status == "Delcined"){
+            $query = "UPDATE jbe_employees_leave SET bm_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $paramType = "sii";
+            $paramArray = array(
+                $bm_status,
+                $employee_id,
+                $employee_leave_id
+            );
+            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+
+             //Create an instance; passing `true` enables exceptions
+             $mail = new PHPMailer(true);
+
+             try {
+                 //Server settings
+                 // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                 $mail->isSMTP();                                            //Send using SMTP
+                 $mail->Host       = 'mail.qualisbusinesssupport.com';                     //Set the SMTP server to send through
+                 $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                 $mail->Username   = 'jbetest@qualisbusinesssupport.com';                     //SMTP username
+                 $mail->Password   = 'K3l3shamm@';                               //SMTP password
+                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                 $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+ 
+                 //Recipients
+                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');	
+                 $mail->AddAddress($employee_email, $employee_fullname); 
+ 
+                 //Content
+                 $mail->isHTML(true);                                  //Set email format to HTML
+                 $mail->Subject = 'Leave Application - '. $employee_fullname; 
+                 $content = '<div style="background-color: white; padding: 2px;">
+                 <h5 style="font-size: 1.25rem">Dear ' . $employee_fullname . '</h5>
+                 <h6 style="font-size: 1rem"> Your Leave Request Have Been Declined. Kindly check your porter for more information.</h6>
+                 <a style="font-size: 1rem" href="http://localhost/jbeleave">Click on link for rediection</a>
+                 <h6 style="font-size: 1rem">Best Regards</h6>
+                 </div>';
+                 $mail->MsgHTML($content);
+ 
+                 $mail->send();
+                 $_SESSION['message'] =  $employee_fullname . " Leave Application have been processed Successfully.";
+                 $response = array(
+                     "status" => "success",
+                     "message" => $_SESSION['message']
+                 );
+             } catch (Exception $e) {
+                 $_SESSION['message'] = "Message could not be sent. " . $employee_fullname . " Record Updated Regardless";
+                 $response = array(
+                     "status" => "error",
+                     "message" => $_SESSION['message']
+                 );
+
+                 return $response; 
+             }
+        }else if ($bm_status == "Approved"){
+            $totalleave = $employeeLeaveDetail[0]['totalleave'];
+            $daystaken = $employeeLeaveDetail[0]['daystaken'] + $employeeLeaveDetail[0]['noofdays'];
+            $daysleft = $totalleave - $daystaken;
+            $year = $_POST["approve-leave-year"];
+
+            $query = "UPDATE leave_years SET daystaken = ?, daysleft = ? WHERE employee_id = ? AND year = ?";
+            $paramType = "iiis";
+            $paramArray = array(
                 $daystaken,
                 $daysleft,
                 $employee_id,
                 $year
             );
-            $updateemployeeyear = $this->db_handle->update($query0, $paramType0, $paramArray0);
+            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
             
-            $query = "UPDATE jbe_employees_leave SET daystaken = ?, daysleft = ?, hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
+            $query = "UPDATE jbe_employees_leave SET daystaken = ?, daysleft = ?, bm_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
 
             $paramType = "iisii";
             $paramArray = array(
                 $daystaken,
                 $daysleft,
-                $hr_status,
+                $bm_status,
                 $employee_id,
                 $employee_leave_id
             );
@@ -887,15 +1216,15 @@ class Employee {
                 //Recipients
                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
                 // $mail->AddAddress("Ayoaro85@gmail.com", "Ugoh Akongwubel");	
-                $mail->AddAddress($_SESSION["email-phone"], $hr_fullname); 
+                $mail->AddAddress($employee_email, $employee_fullname); 
 
                 //Content
                 $mail->isHTML(true);                                  //Set email format to HTML
                 $mail->Subject = 'Leave Application - '. $employee_fullname; 
                 $content = '<div style="background-color: white; padding: 2px;">
-                <h5 style="font-size: 1.25rem">Dear ' . $firstname . '</h5>
+                <h5 style="font-size: 1.25rem">Dear ' . $employee_fullname . '</h5>
                 <h6 style="font-size: 1rem"> Your Leave Request Have Been Approved And Processeed. Kindly check your porter for more information.</h6>
-                <a style="font-size: 1rem" href="http://localhost/phpprojects/jbe-leave/public/">Click on link for rediection</a>
+                <a style="font-size: 1rem" href="http://localhost/jbeleave/">Click on link for rediection</a>
                 <h6 style="font-size: 1rem">Best Regards</h6>
                 </div>';
                 $mail->MsgHTML($content);
@@ -914,80 +1243,7 @@ class Employee {
                 );
             }
             return $response;
-        }else if ($hr_status == "Declined") {
-            $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
-            $paramType = "sii";
-            $paramArray = array(
-                $_POST['leave-status'],
-                $_POST["process-employeeid"],
-                $_POST["process-leave-employeeid"]
-            );
-            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
-
-             //Create an instance; passing `true` enables exceptions
-             $mail = new PHPMailer(true);
-
-             try {
-                 //Server settings
-                 // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-                 $mail->isSMTP();                                            //Send using SMTP
-                 $mail->Host       = 'mail.qualisbusinesssupport.com';                     //Set the SMTP server to send through
-                 $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-                 $mail->Username   = 'jbetest@qualisbusinesssupport.com';                     //SMTP username
-                 $mail->Password   = 'K3l3shamm@';                               //SMTP password
-                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-                 $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
- 
-                 //Recipients
-                 $mail->setFrom('jbetest@qualisbusinesssupport.com', 'Leave Application - Jubailibros Engineering');
-                 $mail->AddAddress("Ayoaro85@gmail.com", "Ugoh Akongwubel");	
-                 $mail->AddAddress($_SESSION["email-phone"], $hr_fullname); 
- 
-                 //Content
-                 $mail->isHTML(true);                                  //Set email format to HTML
-                 $mail->Subject = 'Leave Application - '. $employee_fullname; 
-                 $content = '<div style="background-color: white; padding: 2px;">
-                 <h5 style="font-size: 1.25rem">Dear ' . $firstname . '</h5>
-                 <h6 style="font-size: 1rem"> Your Leave Request Have Been Declined. Kindly check your porter for more information.</h6>
-                 <a style="font-size: 1rem" href="http://localhost/phpprojects/jbe-leave/public/">Click on link for rediection</a>
-                 <h6 style="font-size: 1rem">Best Regards</h6>
-                 </div>';
-                 $mail->MsgHTML($content);
- 
-                 $mail->send();
-                 $_SESSION['message'] =  $firstname . " " . $lastname . " Leave Application have been processed Successfully.";
-                 $response = array(
-                     "status" => "success",
-                     "message" => $_SESSION['message']
-                 );
-             } catch (Exception $e) {
-                 $_SESSION['message'] = "Message could not be sent. " . $employee_fullname . " Record Updated Regardless";
-                 $response = array(
-                     "status" => "error",
-                     "message" => $_SESSION['message']
-                 );
-
-                 return $response; 
-             }
-        }else if ($hr_status == "Pending") {
-            $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
-            $paramType = "sii";
-            $paramArray = array(
-                $_POST['leave-status'],
-                $_POST["process-employeeid"],
-                $_POST["process-leave-employeeid"]
-            );
-            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
-
-            $_SESSION['message'] = "Employee Record Updated!";
-            $response = array(
-                "status" => "success",
-                "message" => $_SESSION['message']
-            );
-            
-            return $response;  
         }
-        
     }
 
     public function getleaveapplication($employee_id, $year){
@@ -1070,6 +1326,19 @@ class Employee {
         $paramType = 'ss';
         $paramArray = array (
             $line_manager,
+            $year
+        );
+
+        $subordinateLeaveRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $subordinateLeaveRecord;
+    }
+
+    public function getAllEmployeeLeaveRecord($year) {
+        $query = 'SELECT jbe_employees.*, leave_years.* FROM jbe_employees INNER JOIN leave_years ON jbe_employees.employee_id = leave_years.employee_id 
+        WHERE leave_years.year = ?';
+        
+        $paramType = 's';
+        $paramArray = array (
             $year
         );
 

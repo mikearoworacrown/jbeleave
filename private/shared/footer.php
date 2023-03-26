@@ -9,5 +9,6 @@
 <script src="<?php echo url_for('js/updatesubleave.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/processleave.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('js/updateemployee.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('js/approveleave.js?v=') . time();?>"></script>
 </body>
 </html>

@@ -30,7 +30,7 @@
         }
     }
 
-    if(isset($_SESSION["usernme"])){
+    if(isset($_SESSION["username"])){
         if(isset($_SESSION['employeetype']) && $_SESSION['employeetype'] == 'management')
         {
             header("location: management/");
@@ -38,7 +38,7 @@
         }
     }
 
-    if(isset($_SESSION["usernme"])){
+    if(isset($_SESSION["username"])){
         if(isset($_SESSION['employeetype']) && $_SESSION['employeetype'] == 'admin')
         {
             header("location: admin/");

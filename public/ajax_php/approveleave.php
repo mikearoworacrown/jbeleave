@@ -4,7 +4,9 @@
     
     $employeeRecord = new Employee();
 
-    $response = $employeeRecord->updateEmployeeLeave($_POST["process-employeeid"], $_POST["process-leave-employeeid"], $_POST['leave-status']);
+    // var_dump($_POST);
+
+    $response = $employeeRecord->approveEmployeeLeave($_POST["approve-employeeid"], $_POST["approve-leave-employeeid"], $_POST['approve-leave-status']);
 
     echo json_encode($response);
 ?>

@@ -25,7 +25,7 @@
 
     // // var_dump($_SESSION);
     $employeeRecord = new Employee();
-    $response = $employeeRecord->updateTeamLeave($_SESSION["team-id"], $_SESSION["team-leave-id"]);
+    $response = $employeeRecord->updateTeamLeave($_SESSION["team-id"], $_SESSION["team-leave-id"], $_SESSION['team-leave-status']);
 
     echo json_encode($response);
     

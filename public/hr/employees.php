@@ -126,7 +126,7 @@
     
 </style>
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>

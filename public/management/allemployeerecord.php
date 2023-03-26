@@ -4,7 +4,7 @@
 
     $page_title = "Leave Form";
 
-    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'supervisor'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'management'){
         header('Location: ../');
         exit();
     }
@@ -13,10 +13,9 @@
 
     $year = date('Y');
     $employee_id = $_SESSION['employee-id'];
-    $employeetype = "user";
+    $line_manager = $_SESSION['fullname'];
 
-
-    $teamLeaveRecord = $employeeRecord->getTeamLeaveRecord($_SESSION['department'], $employeetype, $year);
+    $teamLeaveRecord = $employeeRecord->getAllEmployeeLeaveRecord($year);
 
     
     include(SHARED_PATH . "/header.php");
@@ -26,9 +25,9 @@
 <section class="jbe__container-fluid jbe__homepage">
     <div class="jbe__container">
         <div class="jbe__homepage-welcome">
-            <h4><span class="jbe__homepage-name"><?php echo $_SESSION['department']; ?> Department</span></h4>
+            <h4><span class="jbe__homepage-name"><?php echo $_SESSION['department']; ?></span></h4>
         </div>
-        <h5 class="jbe__general-header-h5">Team Leave Record</h5>
+        <h5 class="jbe__general-header-h5">Employee Leave Record</h5>
         <div class="jbe__homepage-leave-info">
             <div class="row">
                 <div class="col-md-6">
@@ -43,7 +42,7 @@
 </section>
 
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container" style="overflow:auto;">
+    <div class="jbe__container">
         <table class="table">
             <thead class="thead-dark">
                 <tr>

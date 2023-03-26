@@ -117,7 +117,7 @@
 </section>
 
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container" id="yearapplication">
+    <div class="jbe__container" id="yearapplication" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -160,14 +160,16 @@
                             }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == "Declined"){
                                 echo "<td><span id='status' class='declined'>".$getleaveapplication[$i]['hr_status']."</span></td>
                                 <td><span id='status'>---</span></td>";
-                            }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == "Approved"){
-                                echo "<td><span id='status' class='approved'>".$approved."</span></td>
-                                <td><span id='status' class='approved'>".$getleaveapplication[$i]['bm_status']."</span></td>";
                             } else if($getleaveapplication[$i]['supervisor_status'] == 'Declined' && $getleaveapplication[$i]['hr_status'] == "Pending"){
                                 echo "<td><span id='status'>---</span></td>
                                 <td><span id='status'>---</span></td>";
+                            } else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == 'Approved' && $getleaveapplication[$i]['bm_status'] == 'Pending'){
+                                echo "<td><span id='status' class='approved'>".$approved."</span></td>
+                                <td><span id='status' class='pending'>".$getleaveapplication[$i]['bm_status']."</span></td>";
+                            }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == 'Approved' && $getleaveapplication[$i]['bm_status'] == 'Approved'){
+                                echo "<td><span id='status' class='approved'>".$approved."</span></td>
+                                <td><span id='status' class='approved'>".$getleaveapplication[$i]['bm_status']."</span></td>";
                             }
-
 
                             echo
                         "</tr>";
@@ -191,7 +193,7 @@
     </div>
 </section>
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -223,7 +225,7 @@
                             <td>". $approvedLeave[$i]['replacedby'] ."</td>
                             <td><span id='status' class='approved'>". $approvedLeave[$i]['supervisor_status'] ."</span></td>
                             <td><span id='status' class='pending'>". $approvedLeave[$i]['hr_status'] ."</span></td>
-                            <td><span id='status' class='pending'>". $approvedLeave[$i]['bm_status'] ."</span></td>
+                            <td><span id='status'>---</span></td>
                             <td>
                                 <a class='h5' href='employeeleaveform-edit.php?employee_id=".$approvedLeave[$i]['employee_id']."&employee_leave_id=".$approvedLeave[$i]['employee_leave_id']."'><i class='fas fa-edit'></i></a>
                             </td>

@@ -4,7 +4,7 @@
 
     $page_title = "Edit User Leave Form";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'management'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'management'){
         header('Location: ../');
         exit();
     }

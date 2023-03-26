@@ -11,13 +11,13 @@
 
     $employee = new Employee();
 
-    $status = "Approved";
+    $supervisor_status = "Approved";
     $employee_id = $_GET['employee_id'];
     $employee_leave_id = $_GET['employee_leave_id'];
    
     $today = date('d-m-Y');
 
-    $employeeLeaveDetail =  $employee->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $status);
+    $employeeLeaveDetail =  $employee->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $supervisor_status);
 
     $_SESSION["process-team-year"] = $employeeLeaveDetail[0]['year'];
     $_SESSION["process-employee-id"] = $employee_id;
@@ -48,7 +48,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-name">Name: </label>
-                        <input type="text" class="form-control" name="leave-name" id="leave-name" value="<?php echo $employeeLeaveDetail[0]['firstname'] . " " . $employeeLeaveDetail[0]['lastname']?>" disabled>
+                        <input type="text" class="form-control" name="leave-name" id="leave-name" value="<?php echo $employeeLeaveDetail[0]['firstname'] . " " . $employeeLeaveDetail[0]['lastname']; ?>" disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-department">Department: </label>
@@ -85,19 +85,19 @@
                 
                 <div class="col-md-6">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type1" value="Annual Leave" checked>
+                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type1" value="Annual Leave" checked disabled>
                         <label class="form-check-label" for="leave-type1">
                             Annual Leave
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type2" value="Casual Leave">
+                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type2" value="Casual Leave" disabled>
                         <label class="form-check-label" for="leave-type2">
                             Casual Leave
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type3" value="Sick Leave">
+                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type3" value="Sick Leave" disabled>
                         <label class="form-check-label" for="leave-type3">
                             Sick Leave
                         </label>
@@ -106,15 +106,15 @@
 
                 <div class="col-md-6 pb-5">
                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type4" value="Leave Without Pay">
+                        <input class="form-check-input" type="radio" name="leave-type" id="leave-type4" value="Leave Without Pay" disabled>
                         <label class="form-check-label" for="leave-type4">
                             Leave Without Pay
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input mt-3" type="radio" name="leave-type" id="leave-type5" value="Other: ">
+                        <input class="form-check-input mt-3" type="radio" name="leave-type" id="leave-type5" value="Other: " disabled>
                         <label class="form-check-label" for="leave-type5">
-                            Other <input type="text" class="form-control mt-1 ms-1" name="leave-type-other" id="leave-type-other" placeholder="Identify Reason">
+                            Other <input type="text" class="form-control mt-1 ms-1" name="leave-type-other" id="leave-type-other" placeholder="Identify Reason" disabled>
                         </label>
                     </div>
                 </div>

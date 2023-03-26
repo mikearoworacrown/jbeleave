@@ -4,7 +4,7 @@
 
     $page_title = "Edit User Leave Form";
 
-    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'supervisor'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'management'){
         header('Location: ../');
         exit();
     }
@@ -13,12 +13,9 @@
 
     $employee_id = $_GET['employee_id'];
     $employee_leave_id = $_GET['employee_leave_id'];
-    $supervisor_status = 'Pending';
-    $_SESSION['team-id'] = $employee_id;
-    $_SESSION['team-leave-id'] = $employee_leave_id;
     $today = date('d/m/Y');
 
-    $employeeLeaveDetail = $employee->getEmployeeLeaveRecord($employee_leave_id, $employee_id, $supervisor_status);
+    $employeeLeaveDetail = $employee->getHRApprovedApplicationById($employee_id, $employee_leave_id);
 
     if(empty($employeeLeaveDetail)){
         header('Location: ../');
@@ -36,11 +33,13 @@
             <h4>Leave Request Form - Locals</h4>
             <div class="line2"></div>
         </div>
-        <form action="" method="post" class="leave-request-form">
+        <form action="" method="post" class="approveleave-request-form">
             <div class="row leaveform-row1">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="leave-name">Name: </label>
+                        <input type="hidden" name="approve-employeeid" value="<?php echo $employee_id; ?>"/>
+                        <input type="hidden" name="approve-leave-employeeid" value="<?php echo $employee_leave_id; ?>"/>
                         <input type="text" class="form-control" name="leave-name" id="leave-name" value="<?php echo $employeeLeaveDetail[0]['firstname'] . " " . $employeeLeaveDetail[0]['lastname']?>" disabled>
                     </div>
                     <div class="form-group">
@@ -60,6 +59,7 @@
                     <div class="form-group">
                         <label for="leave-year">Leave Year: <span class="jbe__required jbe__error daysleft" id="daysleft"><?php echo $employeeLeaveDetail[0]['daysleft']; ?></span><span class="jbe__required"> day(s) left</span></label>
                         <input type="text" class="form-control" name="leave-year" id="leave-year" value="<?php echo $employeeLeaveDetail[0]['year']; ?>" disabled>
+                        <input type="hidden" name="approve-leave-year" value="<?php echo $employeeLeaveDetail[0]['year']; ?>">
                     </div>
 
                     <div class="form-group">
@@ -115,27 +115,26 @@
                 <div class="col-md-6 pt-5">
                     <div class="form-group">
                         <label for="leave-commencing">Commencing Date: <span class="jbe__required jbe__error date-error"></span></label>
-                        <input type="text" class="form-control leave-commencing" name="leave-commencing" id="datepicker1" value="<?php echo $employeeLeaveDetail[0]['start_date']; ?>" required>
+                        <input type="text" class="form-control leave-commencing" name="leave-commencing" id="datepicker1" value="<?php echo $employeeLeaveDetail[0]['start_date']; ?>" required disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-resumption">Resumption Date: <span class="jbe__required jbe__error"></span></label>
-                        <input type="text" class="form-control leave-resumption" name="leave-resumption" id="datepicker3" value="<?php echo $employeeLeaveDetail[0]['resumption_date']; ?>" required>
+                        <input type="text" class="form-control leave-resumption" name="leave-resumption" id="datepicker3" value="<?php echo $employeeLeaveDetail[0]['resumption_date']; ?>" required disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-ending">Ending Date: <span class="jbe__required jbe__error"></span></label>
                         <input type="text" class="form-control leave-ending" name="leave-ending" id="datepicker2" value="<?php echo $employeeLeaveDetail[0]['end_date']; ?>" disabled>
-                        <input type="hidden" name='notchangedenddate' value="<?php echo $employeeLeaveDetail[0]['end_date']; ?>">
                     </div>
                 </div>  
 
                 <div class="col-md-6 pt-5">
                     <div class="form-group">
                         <label for="leave-replace">To be Replaced By: <span class="jbe__required jbe__error"></span></label>
-                        <input type="text" class="form-control" name="leave-replace" id="leave-replace" value="<?php echo $employeeLeaveDetail[0]['replacedby']; ?>" required>
+                        <input type="text" class="form-control" name="leave-replace" id="leave-replace" value="<?php echo $employeeLeaveDetail[0]['replacedby']; ?>" required disabled>
                     </div>
                     <div class="form-group">
                         <label for="leave-status">Status: <span class="jbe__required jbe__error"></span></label>
-                        <select class="form-select" name="leave-status" id="leave-status" style="color:#ffc107;" required>
+                        <select class="form-select" name="approve-leave-status" id="leave-status" style="color:#ffc107;" required>
                             <option value="Pending" style="color:#ffc107;" selected>Pending</option>
                             <option value="Approved" style="color:green">Approved</option>
                             <option value="Declined" style="color:red">Declined</option>
@@ -156,73 +155,11 @@
                     <div class="form-group">
                         <label for="leave-noofdays">Number of days: <span class="jbe__required jbe__error daysleft1"><?php echo $employeeLeaveDetail[0]['daysleft'] . " "; ?> days left</span></label>
                         <input type="text" class="form-control leave-noofdays" name="leave-noofdays" id="leave-noofdays" value="<?php echo $employeeLeaveDetail[0]['noofdays']; ?>"  disabled>
-                        <input type='hidden' name='notchangednoofdays' value="<?php echo $employeeLeaveDetail[0]['noofdays']; ?>">
                     </div>
                 </div>
             </div>
-            <script>
-                let startDate = document.querySelector('.leave-request-form .leave-commencing');
-                let resumptionDate = document.querySelector('.leave-request-form .leave-resumption');
-                let endDate = document.querySelector('.leave-request-form .leave-ending');
-                let noOfDays = document.querySelector('.leave-request-form .leave-noofdays');
-               
-                
-                startDate.onchange = () => {
-                    resumptionDate.value = "";
-                    let startDateValue = {
-                        startDateInputValue: startDate.value
-                    }
-                    let xhr = new XMLHttpRequest(); //creating XML object
-                    xhr.open("POST", "../ajax_php/noofdays.php", true);
-                    xhr.onload = () => {
-                        if(xhr.readyState === XMLHttpRequest.DONE){
-                            if(xhr.status === 200){
-                            }
-                        }
-                    }
-                    let date1 = JSON.stringify(startDateValue);
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                    xhr.send(date1);
-                }
-
-                resumptionDate.onchange = () => {
-                    let temp = startDate.value;
-                    let resumptionDateValue = {
-                        resumptionDateInputValue: resumptionDate.value,
-                        startDateInputValue: temp
-                    }
-                    let xhr = new XMLHttpRequest(); //creating XML object
-                    xhr.open("POST", "../ajax_php/noofdays.php", true);
-                    xhr.onload = () => {
-                        if(xhr.readyState === XMLHttpRequest.DONE){
-                            if(xhr.status === 200){
-                                let data = xhr.response;
-                                let dateParsed = JSON.parse(data);
-                                if(dateParsed.hasOwnProperty("message")){
-                                    console.log(dateParsed["message"]);
-                                    let dateError = document.querySelector('.date-error');
-                                    dateError.innerHTML = dateParsed["message"];
-                                }else{
-                                    let daysleft = document.querySelector("#daysleft").textContent;
-                                    endDate.value = dateParsed["enddate"];
-                                    noOfDays.value = dateParsed["noofdays"];
-                                    if(noOfDays.value > Number(daysleft)) {
-                                        let leaveresumption = document.querySelector(".leave-resumption");
-                                        leaveresumption.value = "";
-                                        document.querySelector(".dateleft-error").textContent = "Cannot be greater than days left.";
-                                    }
-                                }
-                                
-                            }
-                        }
-                    }
-                    let date2 = JSON.stringify(resumptionDateValue)
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                    xhr.send(date2);
-                }
-            </script>
             <div class="loader"></div>
-            <button type="submit" class="jbe__updateLeave-submit" id="jbe__updateLeave-submit">Process Team Leave</button>
+            <button type="submit" class="jbe__approveLeave-submit" id="jbe__approveLeave-submit">Approve Leave Application</button>
         </form>
     </div>
 </section>

@@ -408,6 +408,21 @@ th, td:nth-last-child(2) {
     margin-right: auto;
 }
 
+.jbe__approveLeave-submit {
+    display: block;
+    width: 60%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .pending{
     background-color: #ffc107;
     padding: 0.2rem;

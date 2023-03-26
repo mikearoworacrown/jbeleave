@@ -4,7 +4,7 @@
 
     $page_title = "Leave Form";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'management'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'management'){
         header('Location: ../');
         exit();
     }
@@ -13,7 +13,7 @@
 
     $year = date('Y');
     $employee_id = $_SESSION['employee-id'];
-    $line_manager = $_SESSION['firstname'] . " " . $_SESSION['lastname'];
+    $line_manager = $_SESSION['fullname'];
 
     $teamLeaveRecord = $employeeRecord->getSubordinateLeaveRecord($line_manager, $year);
 
@@ -27,7 +27,7 @@
         <div class="jbe__homepage-welcome">
             <h4><span class="jbe__homepage-name"><?php echo $_SESSION['department']; ?></span></h4>
         </div>
-        <h5 class="jbe__general-header-h5">Subordinate Leave Record</h5>
+        <h5 class="jbe__general-header-h5">Employee Leave Record</h5>
         <div class="jbe__homepage-leave-info">
             <div class="row">
                 <div class="col-md-6">
@@ -54,6 +54,7 @@
                     <th scope="col">Total Leave</th>
                     <th scope="col">Days Taken</th>
                     <th scope="col">Days Remaining</th>
+                    <th scope="col" width="5%">View</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,7 +70,8 @@
                             <td>" . $teamLeaveRecord[$i]['branch'] . "</td>
                             <td>" . $teamLeaveRecord[$i]['totalleave'] . "</td>
                             <td>" . $teamLeaveRecord[$i]['daystaken'] . "</td>
-                            <td>" . $teamLeaveRecord[$i]['daysleft'] . "</td>";
+                            <td>" . $teamLeaveRecord[$i]['daysleft'] . "</td>
+                            <td><a href='employee-report.php?employee_id=". $teamLeaveRecord[$i]['employee_id'] ."&employee_no=". $teamLeaveRecord[$i]['staff_id']. "&year=" .$year. "' class='h5'><i class='fas fa-eye'></i></a></td>";
                         "</tr>";
                     }
                 }

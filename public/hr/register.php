@@ -10,7 +10,7 @@
     }
 
     $employeeRecord = new Employee();
-    $employeeDetails = $employeeRecord->getEmployee($_SESSION['email-phone']);
+    $employeeDetails = $employeeRecord->getEmployee($_SESSION['username']);
 
     $departments = $employeeRecord->getDepartments();
     $lineManagers = $employeeRecord->getLineManagers();

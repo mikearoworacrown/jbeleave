@@ -4,7 +4,7 @@
 
     $page_title = "Leave Form";
 
-    if(!isset($_SESSION['email-phone']) || $_SESSION['employeetype'] != 'supervisor'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'supervisor'){
         header('Location: ../');
         exit();
     }
@@ -13,8 +13,7 @@
     unset($_SESSION['noofdays']);
     
     $employeeRecord = new Employee();
-    $employeeDetails = $employeeRecord->getEmployee($_SESSION['email-phone']);
-    $_SESSION['firstname'] = $employeeDetails[0]['firstname'];
+    $employeeDetails = $employeeRecord->getEmployee($_SESSION['username']);
 
     $year = date('Y');
     $employee_id = $_SESSION['employee-id'];
@@ -40,7 +39,6 @@
     include(SHARED_PATH . "/header.php");
 ?>
 
-    
 <section class="jbe__container-fluid jbe__homepage">
     <div class="jbe__container">
         <?php if(isset($_SESSION['message'])){
@@ -53,7 +51,7 @@
         unset($_SESSION['message']);
         ?>
         <div class="jbe__homepage-welcome">
-            <h4>Welcome <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['firstname'] . " " . $employeeDetails[0]['lastname'] ?></span></h4>
+            <h4>Welcome <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['fullname']; ?></span></h4>
             <a href="<?php echo url_for('/supervisor/leaveform.php')?>" class="h6 button">Apply For Leave</a>
         </div>
         <h5 class="jbe__general-header-h5">Leave information</h5>
@@ -70,148 +68,53 @@
                     <h6>Employee ID: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['staff_id'];  ?></span></h6>
                     <h6>Year:
                         <input type="hidden" class="employee_id" value="<?php echo $_SESSION['employee-id'];?>">
-                        <select class="indexselect leaveyearindex">
+                        <select class="indexselect leaveyearindex" onchange="showYearRecord(this.value)">
                             <?php
                                 for($i = 0; $i < count($leaveYears); $i++){?>
                                     <option value='<?php echo $leaveYears[$i]['year'];?>' <?php if($year == $leaveYears[$i]['year']){ echo 'selected';} ?>><?php echo $leaveYears[$i]['year']; ?></option>
                           <?php } ?>
                         </select>
                         <script>
-                            let leaveYear = document.querySelector(".leaveyearindex");
-                            leaveYear.onchange = () => {
-                                let employee_id = document.querySelector(".employee_id").value;
-                                let year = leaveYear.value;
+                            let employee_id = document.querySelector(".employee_id").value;
+                            function showYearRecord(year) {
+                                let xhr = new XMLHttpRequest();
+                                xhr.onreadystatechange = function() {
+                                    if (this.readyState == 4 && this.status == 200) {
+                                        document.getElementById("yearapplication").innerHTML = this.responseText;
+                                    }
+                                }
+                                xhr.open("GET", "../ajax_php/getyearapplication.php?year="+year+"&employee_id="+employee_id, true);
+                                xhr.send();
+
                                 let toSend = {
                                     employee_id: employee_id,
                                     year: year
                                 }
-                                // console.log(value);
-                                let xhr = new XMLHttpRequest(); //creating XML object
-                                xhr.open("POST", "../ajax_php/getyearapplication.php", true);
-                                xhr.onload = () => {
-                                    if(xhr.readyState === XMLHttpRequest.DONE){
-                                        if(xhr.status === 200){
-                                            let data = xhr.response;
+                                let xhr1 = new XMLHttpRequest();
+                                xhr1.open("POST", "../ajax_php/getyear.php", true);
+                                xhr1.onload = () => {
+                                    if(xhr1.readyState === XMLHttpRequest.DONE){
+                                        if(xhr1.status === 200){
+                                            let data = xhr1.response;
                                             let dataParsed = JSON.parse(data);
-                                            // console.log(dataParsed);
-                                            let tbody = document.querySelector("#tbody");
-                                            if(dataParsed[0].hasOwnProperty('status')){
-                                                let tbody = document.querySelector("#tbody");
-                                                let daystaken = document.querySelector(".indexdaystaken");
-                                                let daysleft = document.querySelector(".indexdaysremaining");
-                                                let startdate = document.querySelector("#startdate");
-                                                let enddate = document.querySelector("#enddate");
-                                                let resumptiondate = document.querySelector("#resumptiondate");
-                                                let noofdays = document.querySelector("#noofdays");
-                                                let status = document.querySelector("#status");
-                                                let replacedby = document.querySelector("#replacedby");
-                                                let rownumber = document.querySelector("#rownumber");
-                                                daystaken.innerHTML = dataParsed[0]['daystaken'];
-                                                daysleft.innerHTML = dataParsed[0]['daysleft'];
 
-                                                tbody.innerHTML = "";
-                                                // console.log(dataParsed.length);
-                                                for(let i = 0; i < dataParsed.length; i++){
-                                                    let tbody = document.getElementById("tbody");
-                                                    let tr = document.createElement("tr");
-                                                    let th = document.createElement("th");
-                                                    th.appendChild(document.createTextNode(i+1));
-                                                    tr.appendChild(th);
-                                                    let td1 = document.createElement('td');
-                                                    td1.appendChild(document.createTextNode(dataParsed[i]['start_date']));
-                                                    tr.appendChild(td1);
-                                                    let td2 = document.createElement('td');
-                                                    td2.appendChild(document.createTextNode(dataParsed[i]['end_date']));
-                                                    tr.appendChild(td2);
-                                                    let td3 = document.createElement('td');
-                                                    td3.appendChild(document.createTextNode(dataParsed[i]['resumption_date']));
-                                                    tr.appendChild(td3);
-                                                    let td4 = document.createElement('td');
-                                                    td4.appendChild(document.createTextNode(dataParsed[i]['noofdays']));
-                                                    tr.appendChild(td4);
-                                                    let td5 = document.createElement('td');
-                                                    td5.appendChild(document.createTextNode(dataParsed[i]['replacedby']));
-                                                    tr.appendChild(td5);
-                                                    let td6 = document.createElement('td');
-                                                    if(dataParsed[i]['supervisor_status'] == "Pending") {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("Pending"));
-                                                        td6.appendChild(span);
-                                                        span.style.backgroundColor = "#ffc107";
-                                                        span.style.padding = "0.2rem";
-                                                        span.style.borderRadius = "0.3rem";
-                                                    } else if(dataParsed[i]['supervisor_status'] == "Approved") {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("Processed"));
-                                                        td6.appendChild(span);
-                                                        span.style.backgroundColor = "#198754";
-                                                        span.style.padding = "0.2rem";
-                                                        span.style.borderRadius = "0.3rem";
-                                                    }else if(dataParsed[i]['status'] == "Declined") {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("Declined"));
-                                                        td6.appendChild(span);
-                                                        span.style.backgroundColor = "#D0312D";
-                                                        span.style.padding = "0.2rem";
-                                                        span.style.borderRadius = "0.3rem";
-                                                    }
-                                                    tr.appendChild(td6);
-                                                    let td7 = document.createElement('td');
-                                                    if(dataParsed[i]['supervisor_status'] == "Pending" && dataParsed[i]['hr_status'] == 'Pending') {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("---"));
-                                                        td7.appendChild(span);
-                                                    } else if(dataParsed[i]['supervisor_status'] == "Declined" && dataParsed[i]['hr_status'] == 'Pending') {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("---"));
-                                                        td7.appendChild(span);
-                                                    }else if(dataParsed[i]['supervisor_status'] == "Approved" && dataParsed[i]['hr_status'] == 'Pending') {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("Approved"));
-                                                        td7.appendChild(span);
-                                                        span.style.backgroundColor = "#198754";
-                                                        span.style.padding = "0.2rem";
-                                                        span.style.borderRadius = "0.3rem";
-                                                    }else if(dataParsed[i]['supervisor_status'] == "Approved" && dataParsed[i]['hr_status'] == 'Declined') {
-                                                        let span = document.createElement('span');
-                                                        span.appendChild(document.createTextNode("Declined"));
-                                                        td7.appendChild(span);
-                                                        span.style.backgroundColor = "#D0312D";
-                                                        span.style.padding = "0.2rem";
-                                                        span.style.borderRadius = "0.3rem";
-                                                    }
-                                                    tr.appendChild(td6);
-                                                    tbody.appendChild(tr);
-                                                    // rownumber.innerHTML = i+1;
-                                                    // startdate.innerHTML = dataParsed[i]['start_date'];
-                                                    // enddate.innerHTML = dataParsed[i]['end_date'];
-                                                    // resumptiondate.innerHTML = dataParsed[i]['resumption_date'];
-                                                    // noofdays.innerHTML = dataParsed[i]['noofdays'];
-                                                    // replacedby.innerHTML = dataParsed[i]['replacedby'];
-                                                    // status.innerHTML = dataParsed[i]['status'];
-                                                    
-                                                }
-                                            }else{
-                                                tbody.innerHTML = "";
-                                                let daystaken = document.querySelector(".indexdaystaken");
-                                                let daysleft = document.querySelector(".indexdaysremaining");
-                                                
-                                                daystaken.innerHTML = dataParsed[0]['daystaken'];
-                                                daysleft.innerHTML = dataParsed[0]['daysleft'];
-                                            }
+                                            let daystaken = document.querySelector(".indexdaystaken");
+                                            let daysleft = document.querySelector(".indexdaysremaining"); 
+                                            daystaken.innerHTML = dataParsed[0]['daystaken'];
+                                            daysleft.innerHTML = dataParsed[0]['daysleft'];
                                         }
                                     }
                                 }
                                 let jsonString = JSON.stringify(toSend);
                                 // console.log(jsonString);
-                                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                                xhr.send(jsonString);
+                                xhr1.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                                xhr1.send(jsonString);
                             }
                         </script>
                     </h6>
-                    <h6>Total Days of Leave: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['totalleave']  ?></span></h6>
-                    <h6>Days Taken: <span class="jbe__homepage-name indexdaystaken"><?php echo $employeeYearDetails[0]['daystaken'] ?></span></h6>
-                    <h6>Days Remaining: <span class="jbe__homepage-name indexdaysremaining"><?php echo $employeeYearDetails[0]['daysleft'] ?></span></h6>
+                    <h6>Total Days of Leave: <span class="jbe__homepage-name"><?php echo  $employeeYearDetails[0]['totalleave']; ?></span></h6>
+                    <h6>Days Taken: <span class="jbe__homepage-name indexdaystaken"><?php echo $employeeYearDetails[0]['daystaken']; ?></span></h6>
+                    <h6>Days Remaining: <span class="jbe__homepage-name indexdaysremaining"><?php echo $employeeYearDetails[0]['daysleft']; ?></span></h6>
                 </div>
             </div>
         </div>
@@ -219,7 +122,7 @@
 </section>
 
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container" id="yearapplication" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -231,6 +134,7 @@
                     <th scope="col">Replaced By</th>
                     <th scope="col">Supervisor Status</th>
                     <th scope="col">HR Status</th>
+                    <th scope="col">BM Status</th>
                 </tr>
             </thead> 
             <tbody class="tbody" id="tbody">
@@ -254,16 +158,25 @@
                             }
 
                             if($getleaveapplication[$i]['supervisor_status'] == 'Pending' && $getleaveapplication[$i]['hr_status'] == "Pending"){
-                                echo "<td><span id='status'>---</span></td>";
+                                echo "<td><span id='status'>---</span></td><td><span id='status'>---</span></td>";
                             }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == "Pending"){
-                                echo "<td><span id='status' class='pending'>".$getleaveapplication[$i]['hr_status']."</span></td>";
+                                echo "<td><span id='status' class='pending'>".$getleaveapplication[$i]['hr_status']."</span></td>
+                                <td><span id='status'>---</span></td>";
                             }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == "Declined"){
-                                echo "<td><span id='status' class='declined'>".$getleaveapplication[$i]['hr_status']."</span></td>";
-                            }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == "Approved"){
-                                echo "<td><span id='status' class='approved'>".$getleaveapplication[$i]['hr_status']."</span></td>";
+                                echo "<td><span id='status' class='declined'>".$getleaveapplication[$i]['hr_status']."</span></td>
+                                <td><span id='status'>---</span></td>";
                             } else if($getleaveapplication[$i]['supervisor_status'] == 'Declined' && $getleaveapplication[$i]['hr_status'] == "Pending"){
-                                echo "<td><span id='status'>---</span></td>";
+                                echo "<td><span id='status'>---</span></td>
+                                <td><span id='status'>---</span></td>";
+                            } else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == 'Approved' && $getleaveapplication[$i]['bm_status'] == 'Pending'){
+                                echo "<td><span id='status' class='approved'>".$approved."</span></td>
+                                <td><span id='status' class='pending'>".$getleaveapplication[$i]['bm_status']."</span></td>";
+                            }else if($getleaveapplication[$i]['supervisor_status'] == 'Approved' && $getleaveapplication[$i]['hr_status'] == 'Approved' && $getleaveapplication[$i]['bm_status'] == 'Approved'){
+                                echo "<td><span id='status' class='approved'>".$approved."</span></td>
+                                <td><span id='status' class='approved'>".$getleaveapplication[$i]['bm_status']."</span></td>";
                             }
+
+
                             echo
                         "</tr>";
                     }
@@ -289,7 +202,7 @@
 </section>
 
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container">
+    <div class="jbe__container" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
