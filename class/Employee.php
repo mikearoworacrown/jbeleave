@@ -903,6 +903,19 @@ class Employee {
         return $approvedLeaveApplication;
     }
 
+    public function getBMApprovedLeaveApplication($bm_status){
+        $query = 'SELECT jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone, jbe_employees.department, jbe_employees.branch, jbe_employees_leave.* FROM jbe_employees 
+        INNER JOIN jbe_employees_leave ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.bm_status = ? ORDER BY employee_leave_id DESC';
+
+        $paramType = 's';
+        $paramArray = array (
+            $bm_status
+        );
+
+        $approvedLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $approvedLeaveApplication;
+    }
+
     public function getApprovedLeaveApplicationLike($supervisor_status, $hr_status, $like) {
         $query = 'SELECT jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone, jbe_employees.department, jbe_employees.branch, jbe_employees_leave.* FROM jbe_employees 
         INNER JOIN jbe_employees_leave ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.supervisor_status = ? 
@@ -914,6 +927,22 @@ class Employee {
         $paramArray = array (
             $supervisor_status,
             $hr_status,
+            $likeappend
+        );
+
+        $approvedLeaveApplicationLike = $this->db_handle->select($query, $paramType, $paramArray);
+        return $approvedLeaveApplicationLike;
+    }
+
+    public function getBMApprovedLeaveApplicationLike($bm_status, $like){
+        $query = 'SELECT jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone, jbe_employees.department, jbe_employees.branch, jbe_employees_leave.* FROM jbe_employees 
+        INNER JOIN jbe_employees_leave ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.bm_status = ? AND CONCAT(jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone) LIKE ? ORDER BY employee_leave_id DESC';
+
+        $likeappend = '%'.$like.'%';
+
+        $paramType = 'ss';
+        $paramArray = array (
+            $bm_status,
             $likeappend
         );
 

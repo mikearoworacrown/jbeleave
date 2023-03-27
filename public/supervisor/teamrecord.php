@@ -17,7 +17,11 @@
 
 
     $teamLeaveRecord = $employeeRecord->getTeamLeaveRecord($_SESSION['department'], $employeetype, $year);
-
+    if($teamLeaveRecord){
+        $count = count($teamLeaveRecord);
+    }else{
+        $count = 0;
+    }
     
     include(SHARED_PATH . "/header.php");
 ?>
@@ -32,7 +36,7 @@
         <div class="jbe__homepage-leave-info">
             <div class="row">
                 <div class="col-md-6">
-                    <h6>Total Number of Team: <span class="jbe__homepage-name"><?php echo count($teamLeaveRecord); ?></span></h6>
+                    <h6>Total Number of Team: <span class="jbe__homepage-name"><?php echo $count; ?></span></h6>
                 </div>
                 <div class="col-md-6">
                     <h6>Year: <span style="color: #091281;"><?php echo $year; ?></span></h6>

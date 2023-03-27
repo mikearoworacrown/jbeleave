@@ -133,45 +133,26 @@
                                     let dataParsed = JSON.parse(data);
                                     // console.log(selected);
                                     // console.log(dataParsed[0]['department']);
-                                    if(dataParsed[0]['department'] == selected){
-                                        let selectName = document.getElementById("line-manager");
+                                    let selectName = document.getElementById("line-manager");
+                                    let selectEmail = document.getElementById("manager-email");
+                                    while (selectName.lastChild.value !== '') {
+                                            selectName.removeChild(selectName.lastChild);
+                                    }
+                                    while (selectEmail.lastChild.value !== '') {
+                                            selectEmail.removeChild(selectEmail.lastChild);
+                                    }
+                                    for(let i = 0; i < dataParsed.length; i++){
                                         let optionName = document.createElement("option");
-                                        optionName.text = dataParsed[0]['fullname'];
-                                        optionName.value = dataParsed[0]['fullname'];
-                                        while (selectName.lastChild.value !== '') {
-                                                selectName.removeChild(selectName.lastChild);
-                                        }
+                                        optionName.text = dataParsed[i]['fullname'];
+                                        optionName.value = dataParsed[i]['fullname'];
                                         selectName.appendChild(optionName);
 
-                                        let selectEmail = document.getElementById("manager-email");
                                         let optionEmail = document.createElement("option");
-                                        optionEmail.text = dataParsed[0]['email'];
-                                        optionEmail.value = dataParsed[0]['email'];
-                                        while (selectEmail.lastChild.value !== '') {
-                                                selectEmail.removeChild(selectEmail.lastChild);
-                                        }
+                                        optionEmail.text = dataParsed[i]['email'];
+                                        optionEmail.value = dataParsed[i]['email'];
                                         selectEmail.append(optionEmail);
-                                    }else{
-                                        let selectName = document.getElementById("line-manager");
-                                        let selectEmail = document.getElementById("manager-email");
-                                        while (selectName.lastChild.value !== '') {
-                                            selectName.removeChild(selectName.lastChild);
-                                        }
-                                        while (selectEmail.lastChild.value !== '') {
-                                                selectEmail.removeChild(selectEmail.lastChild);
-                                        }
-                                        for(let i = 0; i < dataParsed.length; i++){
-                                            let optionName = document.createElement("option");
-                                            optionName.text = dataParsed[i]['fullname'];
-                                            optionName.value = dataParsed[i]['fullname'];
-                                            selectName.appendChild(optionName);
-
-                                            let optionEmail = document.createElement("option");
-                                            optionEmail.text = dataParsed[i]['email'];
-                                            optionEmail.value = dataParsed[i]['email'];
-                                            selectEmail.append(optionEmail);
-                                        }
                                     }
+                                   
                                 }
                             }
                         }
@@ -204,7 +185,7 @@
                         if(!empty($lineManagers)){
                             for($i = 0; $i < count($lineManagers); $i++){
                     ?>
-                                <option value="<?php echo $lineManagers[$i]['fullname'] ?>"><?php echo $lineManagers[$i]['fullname'] ?></option>
+                                <option value="<?php echo $lineManagers[$i]['fullname'] ?>"><?php echo $lineManagers[$i]['fullname']; ?></option>
                     <?php       
                             }
                         }

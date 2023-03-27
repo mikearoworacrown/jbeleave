@@ -2,7 +2,6 @@
     require_once("C:/xampp/htdocs/jbeleave/private/initialize.php");
     require_once(PROJECT_PATH . "/class/Employee.php");
 
-
     $page_title = "Granted Leave Request";
 
     if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
@@ -15,13 +14,14 @@
     $employee = new Employee();
     $supervisor_status = "Approved";
     $hr_status  = "Approved";
+    $bm_status = "Approved";
 
     if(isset($_SESSION['searchvalue'])) {
-        $grantedLeave = $employee->getApprovedLeaveApplicationLike($supervisor_status, $hr_status, $_SESSION['searchvalue']);
+        $grantedLeave = $employee->getBMApprovedLeaveApplicationLike($bm_status, $_SESSION['searchvalue']);
         $_SESSION['savedsearchvalue'] = $_SESSION['searchvalue'];
         unset($_SESSION['searchvalue']);
     }else{
-        $grantedLeave = $employee->getApprovedLeaveApplication($supervisor_status, $hr_status);
+        $grantedLeave = $employee->getBMApprovedLeaveApplication($bm_status);
     }
 
 ?>
