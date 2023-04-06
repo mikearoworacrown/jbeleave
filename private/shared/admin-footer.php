@@ -1,0 +1,9 @@
+<script src="<?php echo url_for('admin/ajax_admin/deletebranch.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/updatebranch.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/deleteregion.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/updateregion.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/deletedepartment.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/updatedepartment.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/addregion.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/addbranch.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/adddepartment.js?v=') . time();?>"></script>

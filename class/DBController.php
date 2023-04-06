@@ -93,7 +93,7 @@ class DBController {
         }
     }
 
-    function update($query, $param_type, $param_value_array) {
+    public function update($query, $param_type, $param_value_array) {
         $sql = $this->conn->prepare($query);
         $this->bindQueryParams($sql, $param_type, $param_value_array);
         $sql->execute();

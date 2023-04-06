@@ -68,6 +68,19 @@ class Employee {
         $allemployeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
         return $allemployeeRecord;
     }
+
+    public function getAllLeaveApplication($year) {
+        $query = "SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        on jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.year = ? ORDER BY jbe_employees_leave.employee_leave_id DESC";
+
+        $paramType = "s";
+        $paramArray = array(
+            $year
+        );
+
+        $employeeLeaveRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $employeeLeaveRecord;
+    }
     
     public function getAllEmployeePlusLeaveYear($year) {
         $query = "SELECT jbe_employees.*, leave_years.* FROM jbe_employees INNER JOIN leave_years 
@@ -451,7 +464,7 @@ class Employee {
                 $_POST['employee_id']
             );
 
-            $employeeId = $this->db_handle->update($query, $paramType, $paramValue);
+            $this->db_handle->update($query, $paramType, $paramValue);
 
             if($_POST['employee-type'] == "supervisor" || $_POST['employee-type'] == "management"){
                 $line_manager = $this->lineManagerExist($username);
@@ -479,7 +492,7 @@ class Employee {
                     $paramValue = array(
                         $username
                     );
-                    $linManagerId = $this->db_handle->delete($query, $paramType, $paramValue);
+                    $this->db_handle->delete($query, $paramType, $paramValue);
                 }
             }
             $_SESSION['update-message'] = $_POST['firstname'] . " Employee Record Updated Succesfully";
@@ -615,6 +628,19 @@ class Employee {
         return $leaveYears;
 
     }
+
+    public function getLeaveApplied($year) {
+        $query = "SELECT * FROM jbe_employees_leave WHERE year = ?";
+
+        $paramType = "s";
+        $paramArray = array(
+            $year
+        );
+
+        $appliedLeave = $this->db_handle->select($query, $paramType, $paramArray);
+        return $appliedLeave;
+    }
+    
     /**********************************************APPLY FOR LEAVE*********************************************************/
     public function applyforleave() {
         $getYearRecord = $this->getEmployeeYearRecord($_SESSION["employee-id"], $_POST["leave-year"]);
@@ -725,7 +751,7 @@ class Employee {
                 $team_employee_leave_id
             );
 
-            $updatedTeamLeave = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
             $_SESSION['message'] = "Team Record Updated!";
             $response = array(
@@ -745,7 +771,7 @@ class Employee {
                 $team_employee_leave_id
             );
 
-            $updatedTeamLeave = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
             //Create an instance; passing `true` enables exceptions
             $mail = new PHPMailer(true);
@@ -813,7 +839,7 @@ class Employee {
                     $team_employee_leave_id
                 );
     
-                $updatedTeamLeave = $this->db_handle->update($query, $paramType, $paramArray);
+                $this->db_handle->update($query, $paramType, $paramArray);
             }else{
                 $query = "UPDATE jbe_employees_leave SET start_date = ?, resumption_date = ?, replacedby = ?, supervisor_status = ? 
                 WHERE employee_id = ? AND employee_leave_id = ?";
@@ -828,7 +854,7 @@ class Employee {
                     $team_employee_leave_id
                 );
 
-                $updatedTeamLeave = $this->db_handle->update($query, $paramType, $paramArray);
+                $this->db_handle->update($query, $paramType, $paramArray);
             }
             
             //Create an instance; passing `true` enables exceptions
@@ -914,6 +940,59 @@ class Employee {
 
         $approvedLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
         return $approvedLeaveApplication;
+    }
+
+    public function getBMApprovedLeaveApplicationByYear($year){
+        $bm_status = "Approved";
+        $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.bm_status = ? 
+        AND jbe_employees_leave.year = ? ORDER BY employee_leave_id DESC';
+
+        $paramType = 'ss';
+        $paramArray = array (
+            $bm_status,
+            $year
+        );
+
+        $approvedLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $approvedLeaveApplication;
+    }
+
+    public function getAllPendingLeaveByYear($year){
+        $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE 
+        (jbe_employees_leave.supervisor_status = "Pending" AND jbe_employees_leave.hr_status = "Pending" AND jbe_employees_leave.bm_status = "Pending") 
+        OR (jbe_employees_leave.supervisor_status = "Approved" AND jbe_employees_leave.hr_status = "Pending" AND jbe_employees_leave.bm_status = "Pending") 
+        OR (jbe_employees_leave.supervisor_status = "Approved" AND jbe_employees_leave.hr_status = "Approved" AND jbe_employees_leave.bm_status = "Pending") 
+        AND jbe_employees_leave.year = ? ORDER BY employee_leave_id DESC';
+
+        $paramType = 's';
+        $paramArray = array (
+            $year
+        );
+
+        $pendingLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $pendingLeaveApplication;
+    }
+
+    public function  getAllDeclinedLeaveByYear($year){
+        $bm_status = "Declined";
+        $hr_status = "Declined";
+        $supervisor_status = "Declined";
+        $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.supervisor_status = ? OR jbe_employees_leave.hr_status = ?
+        OR jbe_employees_leave.bm_status = ? AND jbe_employees_leave.year = ? ORDER BY employee_leave_id DESC';
+
+        $paramType = 'ssss';
+        $paramArray = array (
+            $supervisor_status,
+            $hr_status,
+            $bm_status,
+            $year
+        );
+
+        $pendingLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $pendingLeaveApplication;
     }
 
     public function getApprovedLeaveApplicationLike($supervisor_status, $hr_status, $like) {
@@ -1004,7 +1083,8 @@ class Employee {
                 $_POST["process-employeeid"],
                 $_POST["process-leave-employeeid"]
             );
-            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
+
+            $this->db_handle->update($query, $paramType, $paramArray);
 
             $_SESSION['message'] = "Employee Record Updated!";
             $response = array(
@@ -1013,7 +1093,7 @@ class Employee {
             );
             
             return $response;  
-        }else if ($hr_status == "Delcined"){
+        }else if ($hr_status == "Declined"){
             $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
             $paramType = "sii";
             $paramArray = array(
@@ -1021,7 +1101,7 @@ class Employee {
                 $_POST["process-employeeid"],
                 $_POST["process-leave-employeeid"]
             );
-            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
              //Create an instance; passing `true` enables exceptions
              $mail = new PHPMailer(true);
@@ -1064,9 +1144,8 @@ class Employee {
                      "status" => "error",
                      "message" => $_SESSION['message']
                  );
-
-                 return $response; 
              }
+             return $response; 
         }else if($hr_status == "Approved") {
             $query = "UPDATE jbe_employees_leave SET hr_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
             $paramType = "sii";
@@ -1075,7 +1154,7 @@ class Employee {
                 $_POST["process-employeeid"],
                 $_POST["process-leave-employeeid"]
             );
-            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
             //Create an instance; passing `true` enables exceptions
             $mail = new PHPMailer(true);
@@ -1137,7 +1216,7 @@ class Employee {
                 $employee_id,
                 $employee_leave_id
             );
-            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
             $_SESSION['message'] = "Employee Record Updated!";
             $response = array(
@@ -1146,7 +1225,7 @@ class Employee {
             );
             
             return $response;  
-        }else if ($bm_status == "Delcined"){
+        }else if ($bm_status == "Declined"){
             $query = "UPDATE jbe_employees_leave SET bm_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
             $paramType = "sii";
             $paramArray = array(
@@ -1154,7 +1233,7 @@ class Employee {
                 $employee_id,
                 $employee_leave_id
             );
-            $updateemployeestatus = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
 
              //Create an instance; passing `true` enables exceptions
              $mail = new PHPMailer(true);
@@ -1214,7 +1293,7 @@ class Employee {
                 $employee_id,
                 $year
             );
-            $updateemployeeyear = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
             
             $query = "UPDATE jbe_employees_leave SET daystaken = ?, daysleft = ?, bm_status = ? WHERE employee_id = ? AND employee_leave_id = ?";
 
@@ -1227,7 +1306,7 @@ class Employee {
                 $employee_leave_id
             );
 
-            $updateemployeeapplication = $this->db_handle->update($query, $paramType, $paramArray);
+            $this->db_handle->update($query, $paramType, $paramArray);
             //Create an instance; passing `true` enables exceptions
             $mail = new PHPMailer(true);
 
@@ -1276,7 +1355,7 @@ class Employee {
     }
 
     public function getleaveapplication($employee_id, $year){
-        $query = 'SELECT * FROM jbe_employees_leave WHERE employee_id = ? AND year = ?';
+        $query = 'SELECT * FROM jbe_employees_leave WHERE employee_id = ? AND year = ? ORDER BY employee_leave_id DESC';
         
         $paramType = 'ss';
         $paramArray = array (
@@ -1404,6 +1483,290 @@ class Employee {
 
         $printForm = $this->db_handle->select($query, $paramType, $paramArray);
         return $printForm;
+    }
+
+
+    public function isRegionExist($region){
+        $query = "SELECT * FROM regions WHERE region = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $region
+        );
+        $resultSet = $this->db_handle->select($query, $paramType, $paramArray);
+        $count = 0;
+        if(is_array($resultSet)){
+            $count = count($resultSet);
+        }
+        if($count > 0){
+            $result = true;
+        }else{
+            $result = false;
+        }
+        return $result;
+    }
+
+    public function addRegion($region) {
+        $isRegionExist = $this->isRegionExist($region);
+        if ($isRegionExist) 
+        {
+            $response = array(
+                "status" => "error",
+                "message" => "Region already exists."
+            );
+        } 
+        else
+        {
+            $query = 'INSERT INTO regions (region, region_slug) VALUES (?, ?)';
+            $region_slug = strtolower($region);
+            $region_slug = str_replace(" ","_",$region_slug);
+            $paramType = 'ss';
+            $paramValue = array(
+                $region,
+                $region_slug
+            );
+            $regionId = $this->db_handle->insert($query, $paramType, $paramValue);
+
+            if(!empty($regionId)){
+                $response = array(
+                    "status" => "success",
+                    "message" => "Region Added successfully."
+                );
+            }
+        }
+        return $response;
+    }
+
+    public function updateRegion($region_id, $region) {
+        $query = 'UPDATE regions SET region = ?, region_slug = ? WHERE region_id = ?';
+
+        $region_slug = strtolower($region);
+        $region_slug = str_replace(" ","_",$region_slug);
+        $paramType = 'sss';
+        $paramValue = array(
+            $region,
+            $region_slug,
+            $region_id,
+        );
+        $this->db_handle->update($query, $paramType, $paramValue);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Region Updated successfully."
+        );
+
+        return $response;
+    }
+
+    public function deleteRegion($region_id) {
+        // $branches = $this->getBranches($region_id);
+        $query = 'DELETE FROM branches WHERE region_id = ?';
+        $paramType = 's';
+        $paramValue = array(
+            $region_id
+        );
+        $this->db_handle->delete($query, $paramType, $paramValue);
+
+        $query = 'DELETE FROM regions WHERE region_id = ?';
+        $paramType = 's';
+        $paramValue = array(
+            $region_id
+        );
+        $this->db_handle->delete($query, $paramType, $paramValue);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Region Deleted successfully."
+        );
+
+        return $response;
+    }
+
+    public function isBranchExist($region_id, $branch){
+        $query = "SELECT * FROM branches WHERE region_id = ? AND branch = ?";
+        $paramType = "ss";
+        $paramArray = array(
+            $region_id,
+            $branch
+        );
+        $resultSet = $this->db_handle->select($query, $paramType, $paramArray);
+        $count = 0;
+        if(is_array($resultSet)){
+            $count = count($resultSet);
+        }
+        if($count > 0){
+            $result = true;
+        }else{
+            $result = false;
+        }
+        return $result;
+    }
+
+    public function addBranch($region_id, $branch){
+        $isBranchExist = $this->isBranchExist($region_id, $branch);
+        if ($isBranchExist) 
+        {
+            $response = array(
+                "status" => "error",
+                "message" => "Branch already exists."
+            );
+        } 
+        else
+        {
+            $query = 'INSERT INTO branches (branch, region_id, branch_slug) VALUES (?, ?, ?)';
+            $branch_slug = strtolower($branch);
+            $branch_slug = str_replace(" ","_",$branch_slug);
+            $paramType = 'sis';
+            $paramValue = array(
+                $branch,
+                $region_id,
+                $branch_slug
+            );
+            $regionId = $this->db_handle->insert($query, $paramType, $paramValue);
+
+            if(!empty($regionId)){
+                $response = array(
+                    "status" => "success",
+                    "message" => "Branch Added successfully."
+                );
+            }
+        }
+        return $response;
+    }
+
+    public function updateBranch($branch_id, $branch) {
+        $query = 'UPDATE branches SET branch = ?, branch_slug = ? WHERE branch_id = ?';
+
+        $branch_slug = strtolower($branch);
+        $branch_slug = str_replace(" ","_",$branch_slug);
+        $paramType = 'sss';
+        $paramValue = array(
+            $branch,
+            $branch_slug,
+            $branch_id,
+        );
+        $this->db_handle->update($query, $paramType, $paramValue);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Branch Updated successfully."
+        );
+
+        return $response;
+    }
+
+    public function deleteBranch($branch_id) {
+        $query = 'DELETE FROM branches WHERE branch_id = ?';
+        $paramType = 's';
+        $paramValue = array(
+            $branch_id
+        );
+        $this->db_handle->delete($query, $paramType, $paramValue);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Branch Deleted successfully."
+        );
+
+        return $response;
+    }
+
+    
+    public function updateDepartment($department_id, $department) {
+        $isDepartmentExist = $this->isDepartmentExist($department);
+        if ($isDepartmentExist) 
+        {
+            $response = array(
+                "status" => "error",
+                "message" => "Department already exists."
+            );
+        } 
+        else
+        {
+            $query = 'UPDATE departments SET department = ?, department_slug = ? WHERE department_id = ?';
+
+            $department_slug = strtolower($department);
+            $department_slug = str_replace(" ","_",$department_slug);
+            $paramType = 'sss';
+            $paramValue = array(
+                $department,
+                $department_slug,
+                $department_id,
+            );
+            $this->db_handle->update($query, $paramType, $paramValue);
+
+            $response = array(
+                "status" => "success",
+                "message" => "Department Updated successfully."
+            );
+        }
+
+        return $response;
+    }
+
+    public function deleteDepartment($department_id) {
+        $query = 'DELETE FROM departments WHERE department_id = ?';
+        $paramType = 's';
+        $paramValue = array(
+            $department_id
+        );
+        $this->db_handle->delete($query, $paramType, $paramValue);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Department Deleted successfully."
+        );
+
+        return $response;
+    }
+    
+    public function isDepartmentExist($department){
+        $query = "SELECT * FROM departments WHERE department = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $department
+        );
+        $resultSet = $this->db_handle->select($query, $paramType, $paramArray);
+        $count = 0;
+        if(is_array($resultSet)){
+            $count = count($resultSet);
+        }
+        if($count > 0){
+            $result = true;
+        }else{
+            $result = false;
+        }
+        return $result;
+    }
+
+    public function addDepartment($department) {
+        $isDepartmentExist = $this->isDepartmentExist($department);
+        if ($isDepartmentExist) 
+        {
+            $response = array(
+                "status" => "error",
+                "message" => "Department already exists."
+            );
+        } 
+        else
+        {
+            $query = 'INSERT INTO departments (department, department_slug) VALUES (?, ?)';
+            $department_slug = strtolower($department);
+            $department_slug = str_replace(" ","_",$department_slug);
+            $paramType = 'ss';
+            $paramValue = array(
+                $department,
+                $department_slug
+            );
+            $departmentId = $this->db_handle->insert($query, $paramType, $paramValue);
+
+            if(!empty($departmentId )){
+                $response = array(
+                    "status" => "success",
+                    "message" => "Department Added successfully."
+                );
+            }
+        }
+        return $response;
     }
 
 }
