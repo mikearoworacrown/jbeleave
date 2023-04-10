@@ -1,3 +1,7 @@
+<script src="<?php echo url_for('admin/ajax_admin/changeadminpass.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/updateemployeeleave.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/deleteemeployee.js?v=') . time();?>"></script>
+<script src="<?php echo url_for('admin/ajax_admin/passwordreset.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('admin/ajax_admin/deletebranch.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('admin/ajax_admin/updatebranch.js?v=') . time();?>"></script>
 <script src="<?php echo url_for('admin/ajax_admin/deleteregion.js?v=') . time();?>"></script>

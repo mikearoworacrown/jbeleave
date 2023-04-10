@@ -4,7 +4,7 @@
 
     $page_title = "Staff Record";
 
-    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'hr'){
+    if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'admin'){
         header('Location: ../');
         exit();
     }
@@ -256,7 +256,7 @@
                                 region_id: region_id
                             }
                             let xhr = new XMLHttpRequest(); //creating XML object
-                            xhr.open("POST", "getbranches.php", true);
+                            xhr.open("POST", "../admin/ajax_admin/getbranches.php", true);
                             xhr.onload = () => {
                                 if(xhr.readyState === XMLHttpRequest.DONE){
                                     if(xhr.status === 200){

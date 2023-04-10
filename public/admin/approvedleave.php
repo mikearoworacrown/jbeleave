@@ -12,7 +12,16 @@
     include(SHARED_PATH . "/admin-header.php");
     $year = date('Y');
     $dbYears = $employee->getYears();
-    $employeeLeaveRecord = $employee->getBMApprovedLeaveApplicationByYear($year)
+    $employeeLeaveRecord = $employee->getBMApprovedLeaveApplicationByYear($year);
+
+    if(isset($_GET['searchvalue'])) {
+        $searchValue = h($_GET['searchvalue']); 
+        $employeeLeaveRecord = $employee->getBMApprovedLeaveApplicationByYearByLike($year, $searchValue);
+        if(empty($employeeLeaveRecord)){
+            header('Location: approvedleave.php');
+            exit();
+        }
+    }
 ?>
 
 <style>
@@ -23,7 +32,11 @@
 <div class="jbe__mainbar">
     <div class="jbe__homepage-welcome">
         <div>
-            <h5 class="jbe__general-header-h5">Approved Leave</h5>
+            <h5 class="jbe__general-header-h5">All Approved Leave</h5>
+            <form action="" class="searchemployee">
+                <input type="text" class="form-control searchemployeevalue" name="searchemployeevalue" value="" placeholder="Search Employee">
+                <button type="button" class="searchemployeebtn"><i class="fas fa-search"></i></button>
+            </form>
         </div>
         <div form action="" method="post" class="yearreport">
             <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
@@ -36,7 +49,7 @@
         </div>
     </div>
 
-    <div class="jbe_employee-record" style="overflow:auto;">
+    <div class="jbe_employee-record" id="jbe_employee-record" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -53,6 +66,8 @@
                     <th scope="col">Replaced By</th>
                     <th scope="col">Days Taken</th>
                     <th scope="col">Days Left</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Edited</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +87,8 @@
                         <td>" . $employeeLeaveRecord[$i]['replacedby'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['daystaken'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['daysleft'] . "</td>
+                        <td><a href='employeeleaveform-edit.php?employee_id=". $employeeLeaveRecord[$i]['employee_id'] ."&employee_leave_id=".$employeeLeaveRecord[$i]['employee_leave_id']."&year=".$employeeLeaveRecord[$i]['year']."' class='h5'><i class='fa fa-edit'></i></a></td>
+                        <td><p class='h5' style='color: red;'>".$employeeLeaveRecord[$i]['edited']."</p></td>
                         ";
                     }
                 }?>
@@ -85,12 +102,40 @@
         let xml = new XMLHttpRequest();
         xml.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("yealybody").innerHTML = this.responseText;
+                document.getElementById("jbe_employee-record").innerHTML = this.responseText;
             }
         }
-        xml.open("GET", "../ajax_php/getyearlytable.php?year="+year, true);
+        xml.open("GET", "ajax_admin/yearlyapprovedleave.php?year="+year, true);
         xml.send();
     }
+
+    const searchEmployee = document.querySelector(".searchemployee");
+        const searchEmployeeBtn = document.querySelector(".searchemployeebtn");
+
+        if(searchEmployee){
+            searchEmployee.onsubmit = (e) => {
+                e.preventDefault();
+            }
+        }
+
+        let searchValue = document.querySelector(".searchemployeevalue");
+        searchValue.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                // event.preventDefault();
+                document.querySelector('.searchemployeebtn').click();
+            }
+        });
+
+        if(searchEmployeeBtn){
+            searchEmployeeBtn.onclick = () => {
+                let searchValue = document.querySelector(".searchemployeevalue");
+                if(searchValue.value != ""){
+                    location.href = "approvedleave.php?searchvalue="+searchValue.value;
+                   
+                }
+
+            }
+        }
 </script>
 
 <?php

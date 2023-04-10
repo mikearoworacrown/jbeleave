@@ -23,16 +23,7 @@
 <div class="jbe__mainbar">
     <div class="jbe__homepage-welcome">
         <div>
-            <h5 class="jbe__general-header-h5">All Leave Application</h5>
-        </div>
-        <div form action="" method="post" class="yearreport">
-            <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
-            <select class="indexselect leaveyearindex" onchange="showYear(this.value)">
-                <?php
-                    for($i = 0; $i < count($dbYears); $i++){?>
-                        <option value='<?php echo $dbYears[$i]['year'];?>' <?php if($year == $dbYears[$i]['year']){ echo 'selected';} ?>><?php echo $dbYears[$i]['year']; ?></option>
-                <?php } ?>
-            </select>
+            <h5 class="jbe__general-header-h5">All Declined Leave Application</h5>
         </div>
     </div>
 

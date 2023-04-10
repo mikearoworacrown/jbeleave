@@ -153,7 +153,7 @@ background-color: var(--color-danger);
     margin-right: auto;
 }
 
-.jbe__editregion-submit, .jbe__editbranch-submit, .jbe__editdepartment-submit {
+.jbe__editregion-submit, .jbe__editbranch-submit, .jbe__editdepartment-submit, .jbe__resetpassword-submit, .jbe__changepassword-submit {
     display: block;
     width: 60%;
     margin-top: 1rem;
@@ -168,7 +168,7 @@ background-color: var(--color-danger);
     margin-right: auto;
 }
 
-.jbe__deleteregion-submit, .jbe__deletebranch-submit, .jbe__deletedepartment-submit {
+.jbe__deleteregion-submit, .jbe__deletebranch-submit, .jbe__deletedepartment-submit, .jbe__deleteemployee-submit {
     display: block;
     width: 60%;
     margin-top: 1rem;
@@ -183,3 +183,60 @@ background-color: var(--color-danger);
     margin-right: auto;
 }
 
+.jbe__mainbar{
+    position: absolute;
+    left: 300px;
+    padding: 15px 0;
+    width: calc(100% - 320px);
+}
+.editemployeebtn {
+    border-right: 3px solid var(--primary-color);
+    padding-right: 2px;
+}
+.deleteemployeebtn {
+    color: var(--color-danger);
+    border-right: 3px solid var(--primary-color);
+    padding-right: 4px;
+    cursor: pointer;
+}
+.passwordemployeebtn {
+    color: var(--primary-color);
+    cursor: pointer;
+}
+.employeepages {
+    margin-top: 20px;
+    text-align: center;
+}
+.employeepages a {
+    padding: 0 7px;
+    margin-left: 3px;
+    border: 2px solid var(--primary-color);
+}
+
+.jbe__employee-record{
+    margin-top: 1rem;
+}
+
+.employeepages .active {
+    background-color: var(--primary-color);
+    color: white;
+}
+.searchemployee {
+    display: flex;
+    flex-direction: row;
+}
+.searchemployee input {
+    border: 0.19rem solid var(--primary-color);
+}
+.searchemployee button {
+    border: 0.19rem solid var(--primary-color);
+    margin-left: 3px;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    padding: 0 0.6rem;
+    cursor: pointer;
+}
+.searchemployee button i {
+    font-size: 1rem;
+    color: var(--primary-color);
+}

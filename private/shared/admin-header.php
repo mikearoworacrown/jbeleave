@@ -109,6 +109,11 @@
         <a href="<?php echo url_for('admin/pendingleave.php');?>" class="h6 jbe__general-link <?php $current_page = "pendingleave"; if($current_page == $page_title){echo "sidebar-active";}?>">Pending Leave Requests</a>
         <a href="<?php echo url_for('admin/declinedleave.php');?>" class="h6 jbe__general-link <?php $current_page = "declinedleave"; if($current_page == $page_title){echo "sidebar-active";}?>">Declined Leave Requests</a>
     </div>
-l
+
+    <div class="jbe__sidebar-header">
+        <h6>JBE Admin Profile</h6>
+        <a href="<?php echo url_for('admin/changepassword.php');?>" class="h6 jbe__general-link <?php $current_page = "changepassword"; if($current_page == $page_title){echo "sidebar-active";}?>">Change Admin Password</a>
+    </div>
+
     <a href="../logout.php" class="h6 jbe__general-link logout">Logout</a>
 </section>

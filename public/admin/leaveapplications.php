@@ -13,6 +13,15 @@
     $year = date('Y');
     $dbYears = $employee->getYears();
     $employeeLeaveRecord = $employee->getAllLeaveApplication($year);
+
+    if(isset($_GET['searchvalue'])) {
+        $searchValue = h($_GET['searchvalue']); 
+        $employeeLeaveRecord = $employee->getAllLeaveApplicationByLike($year, $searchValue);
+        if(empty($employeeLeaveRecord)){
+            header('Location: leaveapplication.php');
+            exit();
+        }
+    }
 ?>
 <style>
     .jbe_employee-record {
@@ -22,7 +31,11 @@
 <div class="jbe__mainbar">
     <div class="jbe__homepage-welcome">
         <div>
-            <h5 class="jbe__general-header-h5">All Leave Application</h5>
+            <h5 class="jbe__general-header-h5">All Leave Applications</h5>
+            <form action="" class="searchemployee">
+                <input type="text" class="form-control searchemployeevalue" name="searchemployeevalue" value="" placeholder="Search Employee">
+                <button type="button" class="searchemployeebtn"><i class="fas fa-search"></i></button>
+            </form>
         </div>
         <div form action="" method="post" class="yearreport">
             <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
@@ -35,7 +48,7 @@
         </div>
     </div>
 
-    <div class="jbe_employee-record" style="overflow:auto;">
+    <div class="jbe_employee-record" id="jbe_employee-record" style="overflow:auto;">
         <table class="table">
             <thead class="thead-dark">
                 <tr>
@@ -84,12 +97,40 @@
         let xml = new XMLHttpRequest();
         xml.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("yealybody").innerHTML = this.responseText;
+                document.getElementById("jbe_employee-record").innerHTML = this.responseText;
             }
         }
-        xml.open("GET", "../ajax_php/getyearlytable.php?year="+year, true);
+        xml.open("GET", "ajax_admin/yearlyleaveapplicaion.php?year="+year, true);
         xml.send();
     }
+
+    const searchEmployee = document.querySelector(".searchemployee");
+        const searchEmployeeBtn = document.querySelector(".searchemployeebtn");
+
+        if(searchEmployee){
+            searchEmployee.onsubmit = (e) => {
+                e.preventDefault();
+            }
+        }
+
+        let searchValue = document.querySelector(".searchemployeevalue");
+        searchValue.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                // event.preventDefault();
+                document.querySelector('.searchemployeebtn').click();
+            }
+        });
+
+        if(searchEmployeeBtn){
+            searchEmployeeBtn.onclick = () => {
+                let searchValue = document.querySelector(".searchemployeevalue");
+                if(searchValue.value != ""){
+                    location.href = "approvedleave.php?searchvalue="+searchValue.value;
+                   
+                }
+
+            }
+        }
 </script>
 <?php
     include(SHARED_PATH . "/footer.php")

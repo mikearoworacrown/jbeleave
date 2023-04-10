@@ -7,7 +7,7 @@
     $employeeRecord = $employee->getEmployeeById($employee_id);
     $departments = $employee->getDepartments();
     $branches = $employee->getEmployeeBranch();
-
+    $lineManagers = $employee->getLineManagers();
     if(empty($employeeRecord)){
         header('Location: ../');
         exit();
@@ -91,16 +91,38 @@
                             ?>
                         </select>
                     </div>
+                    
+
                     <div class="form-group">
-                        <label for="line-manager">Line Manager:</label>
-                        <input type="text" class="form-control line-manager" name="line-manager" id="line-manager" value="<?php echo $employeeRecord[0]['linemanagername']; ?>">
+                        <label for="line-manager" id="label-line-manager">Line Manager</label>
+                        <select id="line-manager" name="line-manager" class="form-select" required>
+                            <?php 
+                                if(!empty($lineManagers)){
+                                    for($i = 0; $i < count($lineManagers); $i++){
+                            ?>
+                                        <option value="<?php echo $lineManagers[$i]['fullname'] ?>" <?php if($employeeRecord[0]['linemanagername'] == $lineManagers[$i]['fullname']){ ?> selected="<?php echo "selected";}?>"><?php echo $lineManagers[$i]['fullname']; ?></option>
+                            <?php       
+                                    }
+                                }
+                            ?>
+                        </select>
                     </div>
                 </div>  
 
                 <div class="col-md-6 pt-5">
                     <div class="form-group">
                         <label for="line-manage-email">Line Manager's Email:</label>
-                        <input type="text" class="form-control" name="line-manage-email" id="line-manage-email" value="<?php echo $employeeRecord[0]['linemanageremail']; ?>">
+                        <select id="line-manage-email" name="line-manage-email" class="form-select" required>
+                            <?php 
+                                if(!empty($lineManagers)){
+                                    for($i = 0; $i < count($lineManagers); $i++){
+                            ?>
+                                        <option value="<?php echo $lineManagers[$i]['email'] ?>" <?php if($employeeRecord[0]['linemanageremail'] == $lineManagers[$i]['email']){ ?> selected="<?php echo "selected";}?>"><?php echo $lineManagers[$i]['email']; ?></option>
+                            <?php       
+                                    }
+                                }
+                            ?>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="total-leave">Total days of Leave: </label>

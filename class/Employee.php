@@ -69,6 +69,45 @@ class Employee {
         return $allemployeeRecord;
     }
 
+    public function getAllEmployeeByLimit($initial_page, $limit) {
+        $query = "SELECT * FROM jbe_employees WHERE NOT employeetype='admin' ORDER BY employee_id DESC LIMIT ?, ?";
+        $paramType = "ss";
+        $paramArray = array(
+            $initial_page, 
+            $limit
+        );
+
+        $allemployeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $allemployeeRecord;
+    }
+
+
+    public function getEmployeeById($employee_id) {
+        $query = "SELECT * FROM jbe_employees WHERE employee_id = ?";
+        $paramType = "s";
+        $paramArray = array(
+            $employee_id
+        );
+
+        $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $employeeRecord;
+    }
+
+    public function getEmployeeByName($like) {
+        $query = "SELECT * FROM jbe_employees WHERE CONCAT(jbe_employees.firstname, jbe_employees.lastname, jbe_employees.fullname, jbe_employees.email_phone) 
+        LIKE ? AND employeetype !='admin' ORDER BY employee_id DESC";
+
+        $likeappend = '%'.$like.'%';
+
+        $paramType = "s";
+        $paramArray = array(
+            $likeappend
+        );
+
+        $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $employeeRecord;
+    }
+
     public function getAllLeaveApplication($year) {
         $query = "SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
         on jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.year = ? ORDER BY jbe_employees_leave.employee_leave_id DESC";
@@ -76,6 +115,23 @@ class Employee {
         $paramType = "s";
         $paramArray = array(
             $year
+        );
+
+        $employeeLeaveRecord = $this->db_handle->select($query, $paramType, $paramArray);
+        return $employeeLeaveRecord;
+    }
+
+    public function getAllLeaveApplicationByLike($year, $searchValue) {
+        $query = "SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        on jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.year = ? 
+        AND CONCAT(jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone) LIKE ?";
+        
+        $likeappend = '%'.$searchValue.'%';
+
+        $paramType = "ss";
+        $paramArray = array(
+            $year,
+            $likeappend
         );
 
         $employeeLeaveRecord = $this->db_handle->select($query, $paramType, $paramArray);
@@ -180,32 +236,6 @@ class Employee {
         $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
         return $employeeRecord;
     }
-
-    public function getEmployeeById($employee_id) {
-        $query = "SELECT * FROM jbe_employees WHERE employee_id = ?";
-        $paramType = "s";
-        $paramArray = array(
-            $employee_id
-        );
-
-        $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
-        return $employeeRecord;
-    }
-
-    public function getEmployeeByName($like) {
-        $query = 'SELECT * FROM jbe_employees WHERE CONCAT(jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone) 
-        LIKE ? ORDER BY employee_id DESC';
-
-        $likeappend = '%'.$like.'%';
-
-        $paramType = "s";
-        $paramArray = array(
-            $likeappend
-        );
-
-        $employeeRecord = $this->db_handle->select($query, $paramType, $paramArray);
-        return $employeeRecord;
-    }
     
     public function getLineManagers() {
         $query = "SELECT * FROM line_manager";
@@ -304,6 +334,7 @@ class Employee {
         }
 
         if ($loginPassword == 1) {
+            $_SESSION["employee_id"] = $employeeRecord[0]["employee_id"];
             $_SESSION["username"] = $employeeRecord[0]["username"];
             $_SESSION["fullname"] = $employeeRecord[0]["fullname"];
             $_SESSION["employee-id"] = $employeeRecord[0]["employee_id"];
@@ -506,6 +537,68 @@ class Employee {
         
     }
 
+    public function resetEmployeePassword($employee_id, $passwordReg){
+        $hashedPassword = password_hash($passwordReg, PASSWORD_DEFAULT);
+        $query = 'UPDATE jbe_employees SET password = ? WHERE employee_id = ?';
+        $paramType = 'si';
+        $paramArray = array (
+            $hashedPassword,
+            $employee_id
+        );
+
+        $this->db_handle->update($query, $paramType, $paramArray);
+        $response = array(
+            "status" => "success",
+            "message" => "Password Successfully Updated."
+        );
+
+        return $response;
+    }
+
+    public function verifyCurrentPassword($employee_id, $currentPassword){
+        $employeeRecord = $this->getEmployeeById($employee_id);
+        $hashedPassword = $employeeRecord[0]['password'];
+
+        if(password_verify($currentPassword, $hashedPassword)){
+           return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    public function changeAdminPassword($employee_id, $newPassword){
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $query = 'UPDATE jbe_employees SET password = ? WHERE employee_id = ?';
+        $paramType = 'si';
+        $paramArray = array (
+            $hashedPassword,
+            $employee_id
+        );
+
+        $this->db_handle->update($query, $paramType, $paramArray);
+        $response = array(
+            "status" => "success",
+            "message" => "Password Successfully Updated."
+        );
+
+        return $response;
+    }
+
+    public function deleteEmployee($employee_id) {
+        $query = "DELETE FROM jbe_employees WHERE employee_id = ?";
+        $paramType = 'i';
+        $paramArray = array(
+            $employee_id
+        );
+        $this->db_handle->delete($query, $paramType, $paramArray);
+
+        $response = array(
+            "status" => "success",
+            "message" => "Employee Record Deleted Successfully."
+        );
+
+        return $response;
+    }
     /**********************************************GET LEAVE YEAR RECORD*********************************************************/
     public function getEmployeeYearRecord($employee_id, $year){
         $query = "SELECT jbe_employees.employee_id, leave_years.* FROM jbe_employees INNER JOIN 
@@ -958,6 +1051,43 @@ class Employee {
         return $approvedLeaveApplication;
     }
 
+    public function getBMApprovedLeaveApplicationByYearById($employee_id, $employee_leave_id, $year) {
+        $bm_status = "Approved";
+        $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.bm_status = ? AND
+        jbe_employees.employee_id = ? AND jbe_employees_leave.employee_leave_id = ? AND jbe_employees_leave.year = ?';
+
+        $paramType = 'ssss';
+        $paramArray = array (
+            $bm_status,
+            $employee_id,
+            $employee_leave_id,
+            $year
+        );
+
+        $approvedLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $approvedLeaveApplication;
+    }
+
+    public function getBMApprovedLeaveApplicationByYearByLike($year, $searchValue) {
+        $bm_status = "Approved";
+        $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
+        ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE jbe_employees_leave.bm_status = ? AND
+        jbe_employees_leave.year = ? AND CONCAT(jbe_employees.firstname, jbe_employees.lastname, jbe_employees.email_phone) LIKE ?';
+
+        $likeappend = '%'.$searchValue.'%';
+
+        $paramType = 'sss';
+        $paramArray = array (
+            $bm_status,
+            $year,
+            $likeappend
+        );
+
+        $approvedLeaveApplication = $this->db_handle->select($query, $paramType, $paramArray);
+        return $approvedLeaveApplication;
+    }
+
     public function getAllPendingLeaveByYear($year){
         $query = 'SELECT jbe_employees.*, jbe_employees_leave.* FROM jbe_employees INNER JOIN jbe_employees_leave 
         ON jbe_employees.employee_id = jbe_employees_leave.employee_id WHERE 
@@ -1201,6 +1331,45 @@ class Employee {
             }
             return $response;
         }
+    }
+
+    public function adminUpdateEmployeeLeave($leave_commence, $leave_enddate, $leave_resumption, $leave_noofdays, $leave_daystaken, $leave_daysleft, $edited){
+        $query = "UPDATE leave_years SET daystaken = ?, daysleft = ? WHERE employee_id = ? AND year = ?";
+        $paramType = "iiis";
+        $paramArray = array(
+            $leave_daystaken,
+            $leave_daysleft,
+            $_SESSION['team-id'],
+            $_SESSION['leave_year']
+        );
+
+        $this->db_handle->update($query, $paramType, $paramArray);
+
+        $query = "UPDATE jbe_employees_leave SET start_date = ?, end_date = ?, resumption_date = ?, noofdays = ?, daystaken = ?, daysleft = ?, edited = ?
+        WHERE employee_id = ? AND employee_leave_id = ?";
+
+        $paramType = "sssssssii";
+        $paramArray = array(
+            $leave_commence,
+            $leave_enddate,
+            $leave_resumption,
+            $leave_noofdays,
+            $leave_daystaken,
+            $leave_daysleft,
+            $edited,
+            $_SESSION['team-id'],
+            $_SESSION['team-leave-id']
+        );
+
+            $this->db_handle->update($query, $paramType, $paramArray);
+
+            $_SESSION['message'] = "Employee Leave Record Updated Successfuly!";
+            $response = array(
+                "status" => "success",
+                "message" => $_SESSION['message']
+            );
+            
+            return $response;  
     }
 
     public function approveEmployeeLeave($employee_id, $employee_leave_id, $bm_status){

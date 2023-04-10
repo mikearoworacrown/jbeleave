@@ -138,7 +138,11 @@
                     for($i = 0; $i < count($getleaveapplication); $i++){
                         echo "
                         <tr>
-                            <th scope='row' id='rownumber'>". $i+1 ."</th>
+                            <th scope='row' id='rownumber'>". $i+1; 
+                            if($getleaveapplication[$i]['edited'] == "yes"){
+                                echo "<span style='color:red;' class='h5'>*</span>";
+                            } 
+                            echo "</th>
                             <td id='startdate'>". $getleaveapplication[$i]['start_date'] ."</td>
                             <td id='enddate'>". $getleaveapplication[$i]['end_date'] ."</td>
                             <td id='resumptiondate'>". $getleaveapplication[$i]['resumption_date'] ."</td>

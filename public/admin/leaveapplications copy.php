@@ -3,7 +3,7 @@
     require_once(PROJECT_PATH . "/class/Employee.php");
 
     $employee = new Employee();
-    $page_title = "pendingleave";
+    $page_title = "leaveapplications";
     if(!isset($_SESSION['username']) || $_SESSION['employeetype'] != 'admin'){
         header('Location: ../');
         exit();
@@ -11,11 +11,14 @@
     
     include(SHARED_PATH . "/admin-header.php");
 
-    $year = date('Y');
+    if(isset($_GET['year'])){
+        $year = $_GET['year'];
+    }else{
+        $year = date('Y');
+    }
     $dbYears = $employee->getYears();
-    $employeeLeaveRecord = $employee->getAllPendingLeaveByYear($year);
+    $employeeLeaveRecord = $employee->getAllLeaveApplication($year);
 ?>
-
 <style>
     .jbe_employee-record {
         padding: 10px 0;
@@ -24,7 +27,16 @@
 <div class="jbe__mainbar">
     <div class="jbe__homepage-welcome">
         <div>
-            <h5 class="jbe__general-header-h5">All Pending Leave Applications</h5>
+            <h5 class="jbe__general-header-h5">All Leave Application</h5>
+        </div>
+        <div form action="" method="post" class="yearreport">
+            <h5><span class="jbe__homepage-name">Choose Year:</span></h5>
+            <select class="indexselect leaveyearindex" onchange="showYear(this.value)">
+                <?php
+                    for($i = 0; $i < count($dbYears); $i++){?>
+                        <option value='<?php echo $dbYears[$i]['year'];?>' <?php if($year == $dbYears[$i]['year']){ echo 'selected';} ?>><?php echo $dbYears[$i]['year']; ?></option>
+                <?php } ?>
+            </select>
         </div>
     </div>
 
@@ -42,9 +54,6 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Resumption Date</th>
                     <th scope="col">Number of Days</th>
-                    <th scope="col">Supervisor Status</th>
-                    <th scope="col">HR Status</th>
-                    <th scope="col">BM Status</th>
                     <th scope="col">Replaced By</th>
                     <th scope="col">Days Taken</th>
                     <th scope="col">Days Left</th>
@@ -64,9 +73,6 @@
                         <td>" . $employeeLeaveRecord[$i]['end_date'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['resumption_date'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['noofdays'] . "</td>
-                        <td>" . $employeeLeaveRecord[$i]['supervisor_status'] . "</td>
-                        <td>" . $employeeLeaveRecord[$i]['hr_status'] . "</td>
-                        <td>" . $employeeLeaveRecord[$i]['bm_status'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['replacedby'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['daystaken'] . "</td>
                         <td>" . $employeeLeaveRecord[$i]['daysleft'] . "</td>
@@ -78,7 +84,11 @@
     </div>
 
 </div>
-
+<script>
+    function showYear(year) {
+        location.href = "leaveapplications.php?year="+year;
+    }
+</script>
 <?php
     include(SHARED_PATH . "/footer.php")
 ?>
