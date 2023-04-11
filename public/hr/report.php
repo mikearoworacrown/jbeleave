@@ -60,7 +60,6 @@
         <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Employees Granted Leave Requests</h5>
-                <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
             </div>
             <form action="" method="post" class="searchform">
                 <input type="text" class="form-control searchvalue" name="searchvalue" placeholder="Search Employee" value="<?php if(isset($_SESSION['savedsearchvalue'])){ echo $_SESSION['savedsearchvalue'];}?>">

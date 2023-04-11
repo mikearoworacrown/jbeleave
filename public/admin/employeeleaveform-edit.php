@@ -17,11 +17,14 @@
     $today = date('d/m/Y');
 
     $employeeLeaveDetail = $employee->getBMApprovedLeaveApplicationByYearById($employee_id, $employee_leave_id, $year);
-    $_SESSION['daysleft'] = $employeeLeaveDetail[0]['daysleft'];
-    $_SESSION['daystaken'] = $employeeLeaveDetail[0]['daystaken'];
+    $_SESSION['olddaysleft'] = $employeeLeaveDetail[0]['daysleft'];
+    $_SESSION['olddaystaken'] = $employeeLeaveDetail[0]['daystaken'];
     $_SESSION['team-id'] = $employee_id;
     $_SESSION['team-leave-id'] = $employee_leave_id;
     $_SESSION['leave_year'] = $year;
+    $_SESSION['oldnoofdays'] = $employeeLeaveDetail[0]['noofdays'];
+    $_SESSION['totalleave'] = $employeeLeaveDetail[0]['totalleave'];
+
     if(empty($employeeLeaveDetail)){
         header('Location: approvedleave.php');
         exit();

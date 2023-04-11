@@ -198,10 +198,9 @@
     <div class="jbe__container" style="position: relative">
         <div>
             <h5 class="jbe__general-header-h5">Employee Leave Request (Line Manager)</h5>
-            <h5>Branch: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['branch'];  ?></span></h5>
         </div>
         
-        <div class="jbe__homepage-welcome" style="position: absolute; top: 1rem; right: 1rem;">
+        <div class="jbe__homepage-welcome" style="position: absolute; top: -0.5rem; right: 1rem;">
             <a href="<?php echo url_for('management/teamrecord.php')?>" class="h6 button">View Employee Record (Line Manager)</a>
         </div>
     </div>

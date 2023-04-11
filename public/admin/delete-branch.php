@@ -50,7 +50,7 @@
 <section class="jbe__mainbar">
     <div class="jbe__homepage-welcome">
         <div>
-            <h4 class="display-6" style="font-weight: 500;">VI Branch</h4>
+            <h4 class="display-6" style="font-weight: 500;"></h4>
         </div>
 
     </div>

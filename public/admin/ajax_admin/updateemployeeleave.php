@@ -18,8 +18,10 @@
     $leave_resumption = $_POST["leave-resumption"];
     $leave_enddate = $_SESSION['endDate'];
     $leave_noofdays = $_SESSION['noofdays'];
-    $leave_daystaken = $leave_noofdays;
-    $leave_daysleft = $_SESSION['daysleft'] + ($_SESSION['daystaken'] - $leave_noofdays);
+    $leave_daystaken = $_SESSION['daystaken'] - ($_SESSION['oldnoofdays'] - $_SESSION['noofdays']);
+    $leave_daysleft = $_SESSION['totalleave'] - $leave_daystaken;
+
+    // echo $leave_noofdays . " " . $leave_daystaken . " " . $leave_daysleft;
     $response = $employeeRecord->adminUpdateEmployeeLeave($leave_commence, $leave_enddate, $leave_resumption, $leave_noofdays, $leave_daystaken, $leave_daysleft, $edited);
 
     echo json_encode($response);

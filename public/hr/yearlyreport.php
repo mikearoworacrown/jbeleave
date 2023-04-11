@@ -26,7 +26,6 @@
         <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Yearly Report</h5>
-                <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
             </div>
             <div form action="" method="post" class="yearreport">
                 <h5><span class="jbe__homepage-name">Choose Year:</span></h5>

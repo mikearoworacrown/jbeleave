@@ -69,7 +69,6 @@
         <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Employees Report</h5>
-                <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
                 <form action="" method="post" class="searchform">
                     <input type="text" class="form-control searchvalue" name="searchvalue" value="<?php if(isset($_SESSION['savedemployeereportsearchvalue'])){ echo $_SESSION['savedemployeereportsearchvalue'];}?>" placeholder="Search Employee">
                     <button type="button" class="searchformbtn"><i class="fas fa-search"></i></button>

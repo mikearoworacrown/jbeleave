@@ -94,7 +94,6 @@
         <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Employees Record - Registered Employee</h5>
-                <h5>Branch: <span class="jbe__homepage-name">Victoria Island</span></h5>
                 <form action="" method="post" class="searchform">
                     <input type="text" class="form-control searchvalue" name="searchvalue" value="<?php if(isset($_SESSION['savedemployeesearchvalue'])){ echo $_SESSION['savedemployeesearchvalue'];}?>" placeholder="Search Employee">
                     <button type="button" class="searchformbtn"><i class="fas fa-search"></i></button>
@@ -126,7 +125,7 @@
     
 </style>
 <section class="jbe__container-fluid jbe__table">
-    <div class="jbe__container" style="overflow:auto;">
+    <div class="jbe__container">
         <table class="table">
             <thead class="thead-dark">
                 <tr>

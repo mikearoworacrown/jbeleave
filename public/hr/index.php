@@ -191,7 +191,6 @@
         <div class="jbe__homepage-welcome">
             <div>
                 <h5 class="jbe__general-header-h5">Employees Leave Requests</h5>
-                <h5>Branch: <span class="jbe__homepage-name"><?php echo $employeeDetails[0]['branch'];  ?></span></h5>
             </div>
             <a href="<?php echo url_for('/hr/report.php')?>" class="h6 button">Employees Leave Reports</a>
         </div>

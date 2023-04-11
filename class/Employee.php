@@ -269,14 +269,6 @@ class Employee {
         if($lineManager){
             return $lineManager;
         }else {
-            // $query = "SELECT * FROM line_manager WHERE CONCAT(line_manager.job_description) LIKE ?";
-            // $like = "Branch";
-            // $likeappend = '%'.$like.'%';
-            // $paramType = "s";
-            // $paramArray = array(
-            //     $likeappend
-            // );
-            // $lineManager = $this->db_handle->select($query, $paramType, $paramArray);
             $lineManager = $this->getLineManagers();
             return $lineManager;
         }
